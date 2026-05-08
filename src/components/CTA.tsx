@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
-import { ArrowUpRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight, Wand2 } from "lucide-react";
 
 export default function CTA() {
   return (
@@ -18,16 +19,31 @@ export default function CTA() {
           <p className="mt-5 text-base md:text-lg text-[rgba(45,44,68,0.7)] max-w-xl mx-auto">
             Get early access to CogniBridge and convert your first source into a sensory-safe video this week.
           </p>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="mt-8 inline-flex items-center bg-[#2d2c44] text-white rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-[#1d1c34] transition-colors"
-          >
-            <span className="bg-white/15 rounded-full p-2 flex items-center justify-center">
-              <ArrowUpRight className="w-5 h-5" />
-            </span>
-            <span className="text-sm md:text-base font-normal">Request access</span>
-          </motion.button>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex items-center bg-[#2d2c44] text-white rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-[#1d1c34] transition-colors"
+            >
+              <span className="bg-white/15 rounded-full p-2 flex items-center justify-center">
+                <ArrowUpRight className="w-5 h-5" />
+              </span>
+              <span className="text-sm md:text-base font-normal">Request access</span>
+            </motion.button>
+
+            <Link to="/transform">
+              <motion.span
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center bg-white/30 backdrop-blur-sm border border-white/50 text-[#2d2c44] rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-white/50 transition-colors cursor-pointer"
+              >
+                <span className="bg-white/40 rounded-full p-2 flex items-center justify-center">
+                  <Wand2 className="w-5 h-5" />
+                </span>
+                <span className="text-sm md:text-base font-normal">Transform existing video</span>
+              </motion.span>
+            </Link>
+          </div>
         </motion.div>
       </div>
     </section>

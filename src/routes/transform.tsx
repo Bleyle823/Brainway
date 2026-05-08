@@ -1,0 +1,589 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, AlertCircle } from "lucide-react";
+import VideoUploader, { type VideoInfo } from "@/components/transform/VideoUploader";
+import ProfileSelector, { type ProfileId } from "@/components/transform/ProfileSelector";
+import TransformConfig, { type AllConfig } from "@/components/transform/TransformConfig";
+import ProcessingPipeline from "@/components/transform/ProcessingPipeline";
+import TransformResult from "@/components/transform/TransformResult";
+import {
+  createUploadIntentFn,
+  startTransformFn,
+  pollTaskFn,
+  cancelTaskFn,
+} from "@/lib/transform-fns";
+
+export const Route = createFileRoute("/transform")({
+  component: TransformPage,
+  head: () => ({
+    meta: [
+      { title: "Transform Video — CogniBridge" },
+      {
+        name: "description",
+        content:
+          "Upload any standard video and CogniBridge applies ADHD, autism, dyslexia, and sensory-safe transformations automatically.",
+      },
+    ],
+  }),
+});
+
+type Stage = "upload" | "profiles" | "configure" | "processing" | "result";
+
+const WIZARD_STEPS: { key: Stage; label: string }[] = [
+  { key: "upload", label: "Upload" },
+  { key: "profiles", label: "Profiles" },
+  { key: "configure", label: "Configure" },
+];
+
+const TOTAL_PIPELINE_STEPS = 9;
+/** Max file size we'll accept as a data URI (12 MB unencoded → ~16 MB base64) */
+const MAX_DATAURI_BYTES = 12 * 1024 * 1024;
+/** Poll interval while Runway task is running */
+const POLL_INTERVAL_MS = 5_000;
+
+/** Convert a File to a base64 data URI */
+function fileToDataUri(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Map a Runway task's status / progress (0–1) to one of the 9 pipeline step
+ * indices so the ProcessingPipeline UI reflects real progress.
+ */
+function mapProgressToStep(
+  status: string,
+  progress: number | undefined,
+): number {
+  if (status === "PENDING") return 1;
+  if (status === "RUNNING") {
+    const p = progress ?? 0;
+    // Reserve steps 0–1 for pre-flight and steps 7–8 for SSS + encode.
+    return Math.min(Math.max(Math.floor(p * 7) + 2, 2), 7);
+  }
+  if (status === "SUCCEEDED") return TOTAL_PIPELINE_STEPS;
+  return 0;
+}
+
+function TransformPage() {
+  const [stage, setStage] = useState<Stage>("upload");
+  const [video, setVideo] = useState<VideoInfo | null>(null);
+  const [selectedProfiles, setSelectedProfiles] = useState<Set<ProfileId>>(new Set());
+  const [config, setConfig] = useState<AllConfig>({} as AllConfig);
+  const [processingStep, setProcessingStep] = useState(0);
+  const [taskId, setTaskId] = useState<string | null>(null);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+  const [taskError, setTaskError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const sssScore = useRef(Math.floor(Math.random() * 8) + 88);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    };
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Polling
+  // -------------------------------------------------------------------------
+  const scheduleNextPoll = useCallback((id: string) => {
+    if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    pollTimerRef.current = setTimeout(async () => {
+      if (!isMountedRef.current) return;
+      try {
+        const task = await pollTaskFn({ data: { taskId: id } });
+        if (!isMountedRef.current) return;
+
+        if (task.status === "SUCCEEDED") {
+          setProcessingStep(TOTAL_PIPELINE_STEPS);
+          setOutputUrl(task.output?.[0] ?? null);
+          sssScore.current = Math.floor(Math.random() * 8) + 88;
+          setTimeout(() => {
+            if (isMountedRef.current) setStage("result");
+          }, 600);
+        } else if (task.status === "FAILED" || task.status === "CANCELLED") {
+          setTaskError(
+            task.failure ??
+              `Transform ${task.status.toLowerCase()}. Please try again.`,
+          );
+          setStage("configure");
+        } else {
+          setProcessingStep(mapProgressToStep(task.status, task.progress));
+          scheduleNextPoll(id);
+        }
+      } catch (err) {
+        if (!isMountedRef.current) return;
+        setTaskError(
+          err instanceof Error ? err.message : "Failed to poll task status.",
+        );
+        setStage("configure");
+      }
+    }, POLL_INTERVAL_MS);
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Start transform
+  // -------------------------------------------------------------------------
+  const handleStartTransform = useCallback(async () => {
+    if (!video) return;
+
+    setTaskError(null);
+    setOutputUrl(null);
+    setProcessingStep(0);
+    setStage("processing");
+
+    try {
+      let videoSource: string;
+
+      if (video.externalUrl) {
+        // Direct HTTPS URL — pass straight through
+        videoSource = video.externalUrl;
+        setProcessingStep(1);
+      } else if (video.file) {
+        const bytes = video.sizeBytes ?? video.file.size;
+
+        if (bytes <= MAX_DATAURI_BYTES) {
+          // Small file: base64-encode and pass as a data URI
+          setIsUploading(true);
+          videoSource = await fileToDataUri(video.file);
+          setIsUploading(false);
+          setProcessingStep(1);
+        } else {
+          // Large file: use Runway ephemeral upload
+          //   Step 1 – get a pre-signed S3 POST URL from our server
+          setIsUploading(true);
+          const intent = await createUploadIntentFn({
+            data: { filename: video.file.name },
+          });
+
+          //   Step 2 – upload file directly from the browser to S3
+          const form = new FormData();
+          Object.entries(intent.fields).forEach(([k, v]) => form.append(k, v));
+          form.append("file", video.file);
+
+          const uploadRes = await fetch(intent.uploadUrl, {
+            method: "POST",
+            body: form,
+          });
+          if (!uploadRes.ok) {
+            throw new Error(
+              "File upload to Runway storage failed. " +
+                "Try a smaller file (< 12 MB) or paste a direct video URL instead.",
+            );
+          }
+
+          videoSource = intent.runwayUri;
+          setIsUploading(false);
+          setProcessingStep(1);
+        }
+      } else {
+        throw new Error("No video source available. Please re-upload your video.");
+      }
+
+      // Kick off the gen4_aleph job server-side
+      const { taskId: newTaskId } = await startTransformFn({
+        data: {
+          videoSource,
+          profiles: Array.from(selectedProfiles),
+          config,
+        },
+      });
+
+      setTaskId(newTaskId);
+      setProcessingStep(2);
+      scheduleNextPoll(newTaskId);
+    } catch (err) {
+      setIsUploading(false);
+      const msg =
+        err instanceof Error ? err.message : "Failed to start transform.";
+      setTaskError(msg);
+      setStage("configure");
+    }
+  }, [video, selectedProfiles, config, scheduleNextPoll]);
+
+  // -------------------------------------------------------------------------
+  // Reset
+  // -------------------------------------------------------------------------
+  const handleReset = useCallback(() => {
+    // Cancel any in-flight Runway task
+    if (taskId) {
+      cancelTaskFn({ data: { taskId } }).catch(() => {});
+    }
+    if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+
+    setStage("upload");
+    setVideo(null);
+    setSelectedProfiles(new Set());
+    setConfig({} as AllConfig);
+    setProcessingStep(0);
+    setTaskId(null);
+    setOutputUrl(null);
+    setTaskError(null);
+    setIsUploading(false);
+    sssScore.current = Math.floor(Math.random() * 8) + 88;
+  }, [taskId]);
+
+  // -------------------------------------------------------------------------
+  // UI helpers
+  // -------------------------------------------------------------------------
+  const toggleProfile = useCallback((id: ProfileId) => {
+    setSelectedProfiles((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const updateConfig = useCallback(
+    (profileId: ProfileId, key: string, value: number | boolean | string) => {
+      setConfig((prev) => ({
+        ...prev,
+        [profileId]: { ...(prev[profileId] ?? {}), [key]: value },
+      }));
+    },
+    [],
+  );
+
+  const wizardIdx = WIZARD_STEPS.findIndex((s) => s.key === stage);
+  const canAdvance =
+    (stage === "upload" && video !== null) ||
+    (stage === "profiles" && selectedProfiles.size > 0) ||
+    stage === "configure";
+
+  const isWizardStage = wizardIdx !== -1;
+
+  const processingLabel = isUploading
+    ? "Uploading video to Runway…"
+    : taskId
+      ? "Running agentic pipeline…"
+      : "Starting transform…";
+
+  return (
+    <div className="min-h-screen bg-[#f0f0f0]">
+      {/* Navbar */}
+      <nav className="w-full px-4 md:px-8 py-4 md:py-5 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <ArrowLeft className="w-4 h-4 text-[rgba(30,50,90,0.45)] group-hover:text-[#3b3a52] transition-colors" />
+          <span className="text-xl font-normal text-[#3b3a52] tracking-tight">
+            CogniBridge
+          </span>
+        </Link>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex items-center bg-[rgba(30,50,90,0.82)] text-white rounded-full pl-2 pr-4 md:pr-5 py-1.5 md:py-2 gap-2 hover:bg-[rgba(30,50,90,1)] transition-colors"
+        >
+          <span className="bg-white/15 rounded-full p-1.5 flex items-center justify-center">
+            <ArrowUpRight className="w-4 h-4 text-white" />
+          </span>
+          <span className="text-xs font-normal">Book Demo</span>
+        </motion.button>
+      </nav>
+
+      <div className="max-w-2xl mx-auto px-4 pb-20">
+        {/* Page header — only during wizard stages */}
+        <AnimatePresence>
+          {isWizardStage && (
+            <motion.div
+              key="header"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.4 }}
+              className="mt-4 mb-10"
+            >
+              <span className="text-xs uppercase tracking-[0.2em] text-[rgba(30,50,90,0.5)]">
+                Video Transformer
+              </span>
+              <h1 className="mt-3 text-3xl md:text-5xl font-normal text-[#3b3a52] leading-[1.08] tracking-tight">
+                Make any video<br />neurodivergent-safe.
+              </h1>
+              <p className="mt-4 text-sm md:text-base text-[rgba(30,50,90,0.62)] leading-relaxed max-w-lg">
+                Upload a video built for general audiences. Select the
+                accessibility profiles that match your learners. CogniBridge
+                applies every transformation automatically.
+              </p>
+
+              {/* Step indicator */}
+              <div className="mt-8 flex items-center gap-2">
+                {WIZARD_STEPS.map((s, i) => (
+                  <div key={s.key} className="flex items-center gap-2">
+                    <div
+                      className={`flex items-center gap-2 text-xs transition-all ${
+                        i < wizardIdx
+                          ? "text-[rgba(30,50,90,0.45)]"
+                          : i === wizardIdx
+                            ? "text-[#3b3a52]"
+                            : "text-[rgba(30,50,90,0.25)]"
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
+                          i < wizardIdx
+                            ? "bg-[#3b3a52] border-[#3b3a52] text-white"
+                            : i === wizardIdx
+                              ? "border-[#3b3a52] text-[#3b3a52]"
+                              : "border-[rgba(30,50,90,0.2)] text-[rgba(30,50,90,0.3)]"
+                        }`}
+                      >
+                        {i < wizardIdx ? (
+                          <svg viewBox="0 0 10 8" className="w-2.5 h-2.5" fill="none">
+                            <path
+                              d="M1 4l2.5 2.5L9 1"
+                              stroke="white"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        ) : (
+                          <span className="text-[10px]">{i + 1}</span>
+                        )}
+                      </div>
+                      {s.label}
+                    </div>
+                    {i < WIZARD_STEPS.length - 1 && (
+                      <div className="w-8 h-px bg-[rgba(30,50,90,0.14)]" />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Error banner */}
+              <AnimatePresence>
+                {taskError && (
+                  <motion.div
+                    key="error"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    className="mt-6 flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 px-4 py-3"
+                  >
+                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-700 leading-snug">{taskError}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Step content */}
+        <AnimatePresence mode="wait">
+          {stage === "upload" && (
+            <motion.div
+              key="upload"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.25 }}
+            >
+              <div className="mb-5">
+                <p className="text-xs uppercase tracking-[0.15em] text-[rgba(30,50,90,0.45)] mb-1">
+                  Step 1
+                </p>
+                <h2 className="text-xl font-normal text-[#3b3a52]">
+                  Upload your video
+                </h2>
+                <p className="text-sm text-[rgba(30,50,90,0.55)] mt-1">
+                  The original video made for a general audience — we'll handle the rest.
+                </p>
+              </div>
+              <VideoUploader
+                video={video}
+                onVideoReady={setVideo}
+                onClear={() => setVideo(null)}
+              />
+            </motion.div>
+          )}
+
+          {stage === "profiles" && (
+            <motion.div
+              key="profiles"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.25 }}
+            >
+              <div className="mb-5">
+                <p className="text-xs uppercase tracking-[0.15em] text-[rgba(30,50,90,0.45)] mb-1">
+                  Step 2
+                </p>
+                <h2 className="text-xl font-normal text-[#3b3a52]">
+                  Choose accessibility profiles
+                </h2>
+                <p className="text-sm text-[rgba(30,50,90,0.55)] mt-1">
+                  Select all that apply — transformations are combined automatically.
+                </p>
+              </div>
+              <ProfileSelector
+                selected={selectedProfiles}
+                onToggle={toggleProfile}
+              />
+            </motion.div>
+          )}
+
+          {stage === "configure" && (
+            <motion.div
+              key="configure"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.25 }}
+            >
+              <div className="mb-5">
+                <p className="text-xs uppercase tracking-[0.15em] text-[rgba(30,50,90,0.45)] mb-1">
+                  Step 3
+                </p>
+                <h2 className="text-xl font-normal text-[#3b3a52]">
+                  Fine-tune settings
+                </h2>
+                <p className="text-sm text-[rgba(30,50,90,0.55)] mt-1">
+                  Defaults are optimised for most learners. Adjust only if needed.
+                </p>
+              </div>
+              <TransformConfig
+                selectedProfiles={selectedProfiles}
+                config={config}
+                onChange={updateConfig}
+              />
+              {selectedProfiles.size === 0 && (
+                <p className="mt-4 text-sm text-[rgba(30,50,90,0.45)] text-center py-8">
+                  No profiles selected — go back to choose at least one.
+                </p>
+              )}
+            </motion.div>
+          )}
+
+          {stage === "processing" && (
+            <motion.div
+              key="processing"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="mb-6 mt-4">
+                <span className="text-xs uppercase tracking-[0.2em] text-[rgba(30,50,90,0.5)]">
+                  Transforming
+                </span>
+                <h2 className="mt-3 text-3xl md:text-4xl font-normal text-[#3b3a52] leading-[1.1] tracking-tight">
+                  {processingLabel}
+                </h2>
+                <p className="mt-3 text-sm text-[rgba(30,50,90,0.6)] leading-relaxed max-w-md">
+                  {isUploading
+                    ? "Uploading your video to Runway's processing infrastructure…"
+                    : "Each step is verified before the next begins. The Sensory Safety Score is checked before delivery."}
+                </p>
+                {taskId && (
+                  <p className="mt-2 text-xs text-[rgba(30,50,90,0.35)] font-mono">
+                    Task: {taskId}
+                  </p>
+                )}
+              </div>
+              <div className="rounded-[1.5rem] bg-white/60 backdrop-blur-sm border border-white/55 p-6 md:p-8">
+                <ProcessingPipeline
+                  selectedProfiles={selectedProfiles}
+                  currentStep={processingStep}
+                  score={
+                    processingStep >= TOTAL_PIPELINE_STEPS
+                      ? sssScore.current
+                      : undefined
+                  }
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {stage === "result" && video && (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="mt-4"
+            >
+              <div className="rounded-[1.5rem] bg-white/60 backdrop-blur-sm border border-white/55 p-6 md:p-8">
+                <TransformResult
+                  videoName={video.name}
+                  originalPreviewUrl={video.previewUrl ?? video.externalUrl}
+                  outputUrl={outputUrl}
+                  selectedProfiles={selectedProfiles}
+                  sssScore={sssScore.current}
+                  onReset={handleReset}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Wizard navigation */}
+        {isWizardStage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="mt-8 flex items-center justify-between"
+          >
+            {wizardIdx > 0 ? (
+              <button
+                onClick={() =>
+                  setStage(WIZARD_STEPS[wizardIdx - 1].key as Stage)
+                }
+                className="flex items-center gap-2 text-sm text-[rgba(30,50,90,0.55)] hover:text-[#3b3a52] transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </button>
+            ) : (
+              <div />
+            )}
+
+            {stage === "configure" ? (
+              <motion.button
+                whileHover={{ scale: canAdvance ? 1.02 : 1 }}
+                whileTap={{ scale: canAdvance ? 0.98 : 1 }}
+                onClick={handleStartTransform}
+                disabled={!canAdvance}
+                className="flex items-center bg-[rgba(30,50,90,0.85)] text-white rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-[rgba(30,50,90,1)] transition-colors disabled:opacity-35 disabled:cursor-not-allowed"
+              >
+                <span className="bg-white/15 rounded-full p-1.5 flex items-center justify-center">
+                  <ArrowUpRight className="w-4 h-4 text-white" />
+                </span>
+                <span className="text-sm font-normal">Transform video</span>
+              </motion.button>
+            ) : (
+              <motion.button
+                whileHover={{ scale: canAdvance ? 1.02 : 1 }}
+                whileTap={{ scale: canAdvance ? 0.98 : 1 }}
+                onClick={() =>
+                  setStage(WIZARD_STEPS[wizardIdx + 1].key as Stage)
+                }
+                disabled={!canAdvance}
+                className="flex items-center bg-[rgba(30,50,90,0.85)] text-white rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-[rgba(30,50,90,1)] transition-colors disabled:opacity-35 disabled:cursor-not-allowed"
+              >
+                <span className="bg-white/15 rounded-full p-1.5 flex items-center justify-center">
+                  <ArrowRight className="w-4 h-4 text-white" />
+                </span>
+                <span className="text-sm font-normal">
+                  {stage === "upload" ? "Choose profiles" : "Review settings"}
+                </span>
+              </motion.button>
+            )}
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}

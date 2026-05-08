@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
-import { ChevronRight, ArrowUpRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ChevronRight, ArrowUpRight, Wand2 } from "lucide-react";
 
 const menu = [
   { label: "Product" },
@@ -31,7 +32,17 @@ export default function Navbar() {
 
       <div className="md:hidden text-xl font-normal text-[#3b3a52] tracking-tight">CogniBridge</div>
 
-      <div className="flex-1 flex justify-end">
+      <div className="flex-1 flex justify-end items-center gap-2 md:gap-3">
+        <Link to="/transform">
+          <motion.span
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="hidden md:flex items-center gap-1.5 text-sm text-[rgba(30,50,90,0.75)] hover:text-[#3b3a52] transition-colors cursor-pointer"
+          >
+            <Wand2 className="w-4 h-4" />
+            Transform video
+          </motion.span>
+        </Link>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
