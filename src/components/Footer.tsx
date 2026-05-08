@@ -1,0 +1,47 @@
+const cols = [
+  { title: "Product", links: ["Overview", "How it works", "Pricing", "Changelog"] },
+  { title: "For", links: ["Schools", "Therapists", "E-learning", "Parents"] },
+  { title: "Company", links: ["About", "Research", "Careers", "Contact"] },
+  { title: "Resources", links: ["Docs", "Sensory load score", "Accessibility", "Press kit"] },
+];
+
+export default function Footer() {
+  return (
+    <footer className="w-full px-2 md:px-3 pb-2 md:pb-3 bg-[#f0f0f0]">
+      <div className="w-full rounded-[1.5rem] md:rounded-[2rem] bg-[#2d2c44] text-white px-6 md:px-12 py-14 md:py-20">
+        <div className="grid lg:grid-cols-[1.5fr_3fr] gap-12 lg:gap-16">
+          <div>
+            <span className="text-2xl font-normal tracking-tight">CogniBridge</span>
+            <p className="mt-4 text-sm text-white/60 leading-relaxed max-w-xs">
+              Sensory-aware video for the 1 in 7 learners traditional media leaves behind.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {cols.map((c) => (
+              <div key={c.title}>
+                <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 mb-4">{c.title}</h4>
+                <ul className="flex flex-col gap-2.5">
+                  {c.links.map((l) => (
+                    <li key={l}>
+                      <a href="#" className="text-sm text-white/85 hover:text-white transition-colors">
+                        {l}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-14 pt-6 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-white/50">
+          <span>© {new Date().getFullYear()} CogniBridge. Built for every kind of mind.</span>
+          <div className="flex gap-5">
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">Accessibility statement</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
