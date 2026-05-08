@@ -1,7 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowSquareOut,
+  WarningCircle,
+} from "@phosphor-icons/react";
 import VideoUploader, { type VideoInfo } from "@/components/transform/VideoUploader";
 import ProfileSelector, { type ProfileId } from "@/components/transform/ProfileSelector";
 import TransformConfig, { type AllConfig } from "@/components/transform/TransformConfig";
@@ -270,22 +275,22 @@ function TransformPage() {
       : "Starting transform…";
 
   return (
-    <div className="min-h-screen bg-[#f0f0f0]">
+    <div className="min-h-screen bg-neutral-200">
       {/* Navbar */}
       <nav className="w-full px-4 md:px-8 py-4 md:py-5 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 group">
-          <ArrowLeft className="w-4 h-4 text-[rgba(30,50,90,0.45)] group-hover:text-[#3b3a52] transition-colors" />
-          <span className="text-xl font-normal text-[#3b3a52] tracking-tight">
+          <ArrowLeft weight="fill" className="w-4 h-4 text-neutral-500 group-hover:text-neutral-900 transition-colors" />
+          <span className="text-xl font-normal text-neutral-900 tracking-tight">
             CogniBridge
           </span>
         </Link>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="flex items-center bg-[rgba(30,50,90,0.82)] text-white rounded-full pl-2 pr-4 md:pr-5 py-1.5 md:py-2 gap-2 hover:bg-[rgba(30,50,90,1)] transition-colors"
+          className="flex items-center bg-neutral-800 text-white rounded-full pl-2 pr-4 md:pr-5 py-1.5 md:py-2 gap-2 hover:bg-neutral-950 transition-colors"
         >
           <span className="bg-white/15 rounded-full p-1.5 flex items-center justify-center">
-            <ArrowUpRight className="w-4 h-4 text-white" />
+            <ArrowSquareOut weight="fill" className="w-4 h-4 text-white" />
           </span>
           <span className="text-xs font-normal">Book Demo</span>
         </motion.button>
@@ -303,13 +308,13 @@ function TransformPage() {
               transition={{ duration: 0.4 }}
               className="mt-4 mb-10"
             >
-              <span className="text-xs uppercase tracking-[0.2em] text-[rgba(30,50,90,0.5)]">
+              <span className="text-xs uppercase tracking-[0.2em] text-neutral-500">
                 Video Transformer
               </span>
-              <h1 className="mt-3 text-3xl md:text-5xl font-normal text-[#3b3a52] leading-[1.08] tracking-tight">
+              <h1 className="mt-3 text-3xl md:text-5xl font-normal text-neutral-900 leading-[1.08] tracking-tight">
                 Make any video<br />neurodivergent-safe.
               </h1>
-              <p className="mt-4 text-sm md:text-base text-[rgba(30,50,90,0.62)] leading-relaxed max-w-lg">
+              <p className="mt-4 text-sm md:text-base text-neutral-600 leading-relaxed max-w-lg">
                 Upload a video built for general audiences. Select the
                 accessibility profiles that match your learners. CogniBridge
                 applies every transformation automatically.
@@ -322,19 +327,19 @@ function TransformPage() {
                     <div
                       className={`flex items-center gap-2 text-xs transition-all ${
                         i < wizardIdx
-                          ? "text-[rgba(30,50,90,0.45)]"
+                          ? "text-neutral-500"
                           : i === wizardIdx
-                            ? "text-[#3b3a52]"
-                            : "text-[rgba(30,50,90,0.25)]"
+                            ? "text-neutral-900"
+                            : "text-neutral-400"
                       }`}
                     >
                       <div
                         className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
                           i < wizardIdx
-                            ? "bg-[#3b3a52] border-[#3b3a52] text-white"
+                            ? "bg-neutral-900 border-neutral-900 text-white"
                             : i === wizardIdx
-                              ? "border-[#3b3a52] text-[#3b3a52]"
-                              : "border-[rgba(30,50,90,0.2)] text-[rgba(30,50,90,0.3)]"
+                              ? "border-neutral-900 text-neutral-900"
+                              : "border-neutral-300 text-neutral-400"
                         }`}
                       >
                         {i < wizardIdx ? (
@@ -354,7 +359,7 @@ function TransformPage() {
                       {s.label}
                     </div>
                     {i < WIZARD_STEPS.length - 1 && (
-                      <div className="w-8 h-px bg-[rgba(30,50,90,0.14)]" />
+                      <div className="w-8 h-px bg-neutral-300" />
                     )}
                   </div>
                 ))}
@@ -370,7 +375,7 @@ function TransformPage() {
                     exit={{ opacity: 0, y: -4 }}
                     className="mt-6 flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 px-4 py-3"
                   >
-                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                    <WarningCircle weight="fill" className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
                     <p className="text-sm text-red-700 leading-snug">{taskError}</p>
                   </motion.div>
                 )}
@@ -390,13 +395,13 @@ function TransformPage() {
               transition={{ duration: 0.25 }}
             >
               <div className="mb-5">
-                <p className="text-xs uppercase tracking-[0.15em] text-[rgba(30,50,90,0.45)] mb-1">
+                <p className="text-xs uppercase tracking-[0.15em] text-neutral-500 mb-1">
                   Step 1
                 </p>
-                <h2 className="text-xl font-normal text-[#3b3a52]">
+                <h2 className="text-xl font-normal text-neutral-900">
                   Upload your video
                 </h2>
-                <p className="text-sm text-[rgba(30,50,90,0.55)] mt-1">
+                <p className="text-sm text-neutral-600 mt-1">
                   The original video made for a general audience — we'll handle the rest.
                 </p>
               </div>
@@ -417,13 +422,13 @@ function TransformPage() {
               transition={{ duration: 0.25 }}
             >
               <div className="mb-5">
-                <p className="text-xs uppercase tracking-[0.15em] text-[rgba(30,50,90,0.45)] mb-1">
+                <p className="text-xs uppercase tracking-[0.15em] text-neutral-500 mb-1">
                   Step 2
                 </p>
-                <h2 className="text-xl font-normal text-[#3b3a52]">
+                <h2 className="text-xl font-normal text-neutral-900">
                   Choose accessibility profiles
                 </h2>
-                <p className="text-sm text-[rgba(30,50,90,0.55)] mt-1">
+                <p className="text-sm text-neutral-600 mt-1">
                   Select all that apply — transformations are combined automatically.
                 </p>
               </div>
@@ -443,13 +448,13 @@ function TransformPage() {
               transition={{ duration: 0.25 }}
             >
               <div className="mb-5">
-                <p className="text-xs uppercase tracking-[0.15em] text-[rgba(30,50,90,0.45)] mb-1">
+                <p className="text-xs uppercase tracking-[0.15em] text-neutral-500 mb-1">
                   Step 3
                 </p>
-                <h2 className="text-xl font-normal text-[#3b3a52]">
+                <h2 className="text-xl font-normal text-neutral-900">
                   Fine-tune settings
                 </h2>
-                <p className="text-sm text-[rgba(30,50,90,0.55)] mt-1">
+                <p className="text-sm text-neutral-600 mt-1">
                   Defaults are optimised for most learners. Adjust only if needed.
                 </p>
               </div>
@@ -459,7 +464,7 @@ function TransformPage() {
                 onChange={updateConfig}
               />
               {selectedProfiles.size === 0 && (
-                <p className="mt-4 text-sm text-[rgba(30,50,90,0.45)] text-center py-8">
+                <p className="mt-4 text-sm text-neutral-500 text-center py-8">
                   No profiles selected — go back to choose at least one.
                 </p>
               )}
@@ -475,24 +480,24 @@ function TransformPage() {
               transition={{ duration: 0.3 }}
             >
               <div className="mb-6 mt-4">
-                <span className="text-xs uppercase tracking-[0.2em] text-[rgba(30,50,90,0.5)]">
+                <span className="text-xs uppercase tracking-[0.2em] text-neutral-500">
                   Transforming
                 </span>
-                <h2 className="mt-3 text-3xl md:text-4xl font-normal text-[#3b3a52] leading-[1.1] tracking-tight">
+                <h2 className="mt-3 text-3xl md:text-4xl font-normal text-neutral-900 leading-[1.1] tracking-tight">
                   {processingLabel}
                 </h2>
-                <p className="mt-3 text-sm text-[rgba(30,50,90,0.6)] leading-relaxed max-w-md">
+                <p className="mt-3 text-sm text-neutral-600 leading-relaxed max-w-md">
                   {isUploading
                     ? "Uploading your video to Runway's processing infrastructure…"
                     : "Each step is verified before the next begins. The Sensory Safety Score is checked before delivery."}
                 </p>
                 {taskId && (
-                  <p className="mt-2 text-xs text-[rgba(30,50,90,0.35)] font-mono">
+                  <p className="mt-2 text-xs text-neutral-500 font-mono">
                     Task: {taskId}
                   </p>
                 )}
               </div>
-              <div className="rounded-[1.5rem] bg-white/60 backdrop-blur-sm border border-white/55 p-6 md:p-8">
+              <div className="rounded-[1.5rem] bg-neutral-100/95 backdrop-blur-sm border border-neutral-200 p-6 md:p-8">
                 <ProcessingPipeline
                   selectedProfiles={selectedProfiles}
                   currentStep={processingStep}
@@ -514,7 +519,7 @@ function TransformPage() {
               transition={{ duration: 0.35 }}
               className="mt-4"
             >
-              <div className="rounded-[1.5rem] bg-white/60 backdrop-blur-sm border border-white/55 p-6 md:p-8">
+              <div className="rounded-[1.5rem] bg-neutral-100/95 backdrop-blur-sm border border-neutral-200 p-6 md:p-8">
                 <TransformResult
                   videoName={video.name}
                   originalPreviewUrl={video.previewUrl ?? video.externalUrl}
@@ -541,9 +546,9 @@ function TransformPage() {
                 onClick={() =>
                   setStage(WIZARD_STEPS[wizardIdx - 1].key as Stage)
                 }
-                className="flex items-center gap-2 text-sm text-[rgba(30,50,90,0.55)] hover:text-[#3b3a52] transition-colors"
+                className="flex items-center gap-2 text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft weight="fill" className="w-4 h-4" />
                 Back
               </button>
             ) : (
@@ -556,10 +561,10 @@ function TransformPage() {
                 whileTap={{ scale: canAdvance ? 0.98 : 1 }}
                 onClick={handleStartTransform}
                 disabled={!canAdvance}
-                className="flex items-center bg-[rgba(30,50,90,0.85)] text-white rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-[rgba(30,50,90,1)] transition-colors disabled:opacity-35 disabled:cursor-not-allowed"
+                className="flex items-center bg-neutral-900 text-white rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-neutral-950 transition-colors disabled:opacity-35 disabled:cursor-not-allowed"
               >
                 <span className="bg-white/15 rounded-full p-1.5 flex items-center justify-center">
-                  <ArrowUpRight className="w-4 h-4 text-white" />
+                  <ArrowSquareOut weight="fill" className="w-4 h-4 text-white" />
                 </span>
                 <span className="text-sm font-normal">Transform video</span>
               </motion.button>
@@ -571,10 +576,10 @@ function TransformPage() {
                   setStage(WIZARD_STEPS[wizardIdx + 1].key as Stage)
                 }
                 disabled={!canAdvance}
-                className="flex items-center bg-[rgba(30,50,90,0.85)] text-white rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-[rgba(30,50,90,1)] transition-colors disabled:opacity-35 disabled:cursor-not-allowed"
+                className="flex items-center bg-neutral-900 text-white rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-neutral-950 transition-colors disabled:opacity-35 disabled:cursor-not-allowed"
               >
                 <span className="bg-white/15 rounded-full p-1.5 flex items-center justify-center">
-                  <ArrowRight className="w-4 h-4 text-white" />
+                  <ArrowRight weight="fill" className="w-4 h-4 text-white" />
                 </span>
                 <span className="text-sm font-normal">
                   {stage === "upload" ? "Choose profiles" : "Review settings"}

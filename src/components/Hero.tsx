@@ -3,18 +3,18 @@ import Navbar from "./Navbar";
 import HeroBadge from "./HeroBadge";
 import BottomLeftCard from "./BottomLeftCard";
 import BottomRightCorner from "./BottomRightCorner";
-import heroImage from "@/assets/hero-cognibridge.jpg";
+import heroImage from "@/assets/hero-cognibridge.png";
 
 export default function Hero() {
   return (
-    <section className="w-full min-h-screen p-2 md:p-3 bg-[#f0f0f0]">
-      <div className="relative w-full h-[calc(100vh-1rem)] md:h-[calc(100vh-1.5rem)] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
+    <section className="w-full min-h-screen p-2 md:p-3 bg-neutral-200">
+      <div className="relative w-full h-[calc(100vh-1rem)] md:h-[calc(100vh-1.5rem)] rounded-3xl md:rounded-4xl overflow-hidden">
         <img
           src={heroImage}
-          alt="Calm abstract visual representing neurodivergent-friendly learning"
+          alt="Neurodivergent-friendly learning — abstract brain and cognition"
           width={1920}
           height={1080}
-          className="absolute inset-0 w-full h-full object-cover object-center z-0"
+          className="absolute inset-0 w-full h-full object-cover object-center z-0 grayscale contrast-[1.03]"
         />
 
         <div className="relative z-10 w-full h-full flex flex-col">
@@ -27,7 +27,7 @@ export default function Hero() {
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-[80px] font-normal text-[#3b3a52] mb-3 tracking-tight leading-[1.05]"
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-[80px] font-normal text-neutral-900 mb-3 tracking-tight leading-[1.05] drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]"
               >
                 Learning that meets every mind
               </motion.h1>
@@ -35,7 +35,7 @@ export default function Hero() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-sm sm:text-base md:text-lg text-[#3b3a52] opacity-80 leading-relaxed max-w-xl font-normal"
+                className="text-sm sm:text-base md:text-lg text-neutral-800/90 leading-relaxed max-w-xl font-normal drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)]"
               >
                 CogniBridge turns any document, link, or voice memo into calm, sensory-aware video tuned for ADHD and autistic learners.
               </motion.p>

@@ -7,23 +7,23 @@ const cols = [
 
 export default function Footer() {
   return (
-    <footer className="w-full px-2 md:px-3 pb-2 md:pb-3 bg-[#f0f0f0]">
-      <div className="w-full rounded-[1.5rem] md:rounded-[2rem] bg-[#2d2c44] text-white px-6 md:px-12 py-14 md:py-20">
+    <footer className="w-full px-2 md:px-3 pb-2 md:pb-3 bg-neutral-200">
+      <div className="w-full rounded-3xl md:rounded-4xl bg-neutral-950 text-neutral-100 px-6 md:px-12 py-14 md:py-20 border border-neutral-700">
         <div className="grid lg:grid-cols-[1.5fr_3fr] gap-12 lg:gap-16">
           <div>
             <span className="text-2xl font-normal tracking-tight">CogniBridge</span>
-            <p className="mt-4 text-sm text-white/60 leading-relaxed max-w-xs">
+            <p className="mt-4 text-sm text-neutral-400 leading-relaxed max-w-xs">
               Sensory-aware video for the 1 in 7 learners traditional media leaves behind.
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {cols.map((c) => (
               <div key={c.title}>
-                <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 mb-4">{c.title}</h4>
+                <h4 className="text-xs uppercase tracking-[0.2em] text-neutral-500 mb-4">{c.title}</h4>
                 <ul className="flex flex-col gap-2.5">
                   {c.links.map((l) => (
                     <li key={l}>
-                      <a href="#" className="text-sm text-white/85 hover:text-white transition-colors">
+                      <a href="#" className="text-sm text-neutral-300 hover:text-white transition-colors">
                         {l}
                       </a>
                     </li>
@@ -33,12 +33,12 @@ export default function Footer() {
             ))}
           </div>
         </div>
-        <div className="mt-14 pt-6 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-white/50">
+        <div className="mt-14 pt-6 border-t border-neutral-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-neutral-500">
           <span>© {new Date().getFullYear()} CogniBridge. Built for every kind of mind.</span>
           <div className="flex gap-5">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Accessibility statement</a>
+            <a href="#" className="hover:text-neutral-300 transition-colors">Privacy</a>
+            <a href="#" className="hover:text-neutral-300 transition-colors">Terms</a>
+            <a href="#" className="hover:text-neutral-300 transition-colors">Accessibility statement</a>
           </div>
         </div>
       </div>

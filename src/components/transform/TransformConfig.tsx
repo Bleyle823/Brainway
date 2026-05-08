@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { CaretDown } from "@phosphor-icons/react";
 import { type ProfileId, PROFILES } from "./ProfileSelector";
 
 type FieldType = "slider" | "toggle" | "select";
@@ -204,7 +204,7 @@ export default function TransformConfig({ selectedProfiles, config, onChange }: 
         return (
           <div
             key={profile.id}
-            className="rounded-[1.25rem] bg-white/50 border border-white/50 overflow-hidden"
+            className="rounded-[1.25rem] bg-white/65 border border-neutral-300/60 overflow-hidden"
           >
             <button
               onClick={() => setExpanded(isOpen ? null : profile.id)}
@@ -213,14 +213,16 @@ export default function TransformConfig({ selectedProfiles, config, onChange }: 
               <div className="flex items-center gap-3">
                 <profile.icon
                   className="w-4 h-4 shrink-0"
+                  weight="fill"
                   style={{ color: profile.accentColor }}
                 />
-                <span className="text-sm text-[#3b3a52]">
+                <span className="text-sm text-neutral-950">
                   {profile.label} — settings
                 </span>
               </div>
-              <ChevronDown
-                className={`w-4 h-4 text-[rgba(30,50,90,0.35)] transition-transform duration-200 ${
+              <CaretDown
+                weight="fill"
+                className={`w-4 h-4 text-neutral-500 transition-transform duration-200 ${
                   isOpen ? "rotate-180" : ""
                 }`}
               />
@@ -235,7 +237,7 @@ export default function TransformConfig({ selectedProfiles, config, onChange }: 
                   transition={{ duration: 0.22 }}
                   className="overflow-hidden"
                 >
-                  <div className="px-5 pb-6 pt-2 grid sm:grid-cols-2 gap-x-8 gap-y-6 border-t border-white/40">
+                  <div className="px-5 pb-6 pt-2 grid sm:grid-cols-2 gap-x-8 gap-y-6 border-t border-neutral-200/90">
                     {fields.map((field) => {
                       const raw = profileConfig[field.key];
                       const value = raw !== undefined ? raw : field.default;
@@ -243,11 +245,11 @@ export default function TransformConfig({ selectedProfiles, config, onChange }: 
                       return (
                         <div key={field.key}>
                           <div className="flex items-center justify-between mb-1">
-                            <label className="text-xs text-[rgba(30,50,90,0.7)]">
+                            <label className="text-xs text-neutral-700">
                               {field.label}
                             </label>
                             {field.type === "slider" && (
-                              <span className="text-xs font-normal text-[#3b3a52]">
+                              <span className="text-xs font-normal text-neutral-950">
                                 {value as number}
                                 {field.unit}
                               </span>
@@ -255,7 +257,7 @@ export default function TransformConfig({ selectedProfiles, config, onChange }: 
                           </div>
 
                           {field.description && (
-                            <p className="text-xs text-[rgba(30,50,90,0.38)] mb-2 leading-snug">
+                            <p className="text-xs text-neutral-500 mb-2 leading-snug">
                               {field.description}
                             </p>
                           )}
@@ -270,7 +272,7 @@ export default function TransformConfig({ selectedProfiles, config, onChange }: 
                               onChange={(e) =>
                                 onChange(profile.id, field.key, parseFloat(e.target.value))
                               }
-                              className="w-full h-1.5 rounded-full appearance-none bg-[rgba(30,50,90,0.12)] cursor-pointer accent-[#3b3a52]"
+                              className="w-full h-1.5 rounded-full appearance-none bg-neutral-300/80 cursor-pointer accent-neutral-900"
                             />
                           )}
 
@@ -282,7 +284,7 @@ export default function TransformConfig({ selectedProfiles, config, onChange }: 
                                 onChange(profile.id, field.key, !(value as boolean))
                               }
                               className={`relative w-10 h-6 rounded-full transition-colors duration-200 ${
-                                value ? "bg-[#3b3a52]" : "bg-[rgba(30,50,90,0.14)]"
+                                value ? "bg-neutral-900" : "bg-neutral-300/80"
                               }`}
                             >
                               <span
@@ -299,7 +301,7 @@ export default function TransformConfig({ selectedProfiles, config, onChange }: 
                               onChange={(e) =>
                                 onChange(profile.id, field.key, e.target.value)
                               }
-                              className="w-full text-xs text-[#3b3a52] bg-white/60 border border-white/60 rounded-lg px-3 py-1.5 outline-none cursor-pointer"
+                              className="w-full text-xs text-neutral-950 bg-white/70 border border-neutral-300/70 rounded-lg px-3 py-1.5 outline-none cursor-pointer"
                             >
                               {field.options?.map((o) => (
                                 <option key={o} value={o}>

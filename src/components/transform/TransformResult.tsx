@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Download, RefreshCw, RotateCcw, Play, CheckCircle2, ExternalLink } from "lucide-react";
+import {
+  DownloadSimple,
+  ArrowCounterClockwise,
+  Play,
+  CheckCircle,
+  ArrowSquareOut,
+} from "@phosphor-icons/react";
 import { type ProfileId, PROFILES } from "./ProfileSelector";
 
 interface Props {
@@ -35,43 +41,37 @@ export default function TransformResult({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-full bg-[rgba(52,120,68,0.1)] border border-[rgba(52,120,68,0.2)] flex items-center justify-center shrink-0 mt-0.5">
-            <CheckCircle2 className="w-4.5 h-4.5 text-[rgba(52,120,68,0.9)]" />
+          <div className="w-9 h-9 rounded-full bg-neutral-200 border border-neutral-300 flex items-center justify-center shrink-0 mt-0.5">
+            <CheckCircle className="w-[18px] h-[18px] text-neutral-900" weight="fill" />
           </div>
           <div>
-            <h3 className="text-xl font-normal text-[#3b3a52] leading-tight">
-              Transformation complete
-            </h3>
-            <p className="text-sm text-[rgba(30,50,90,0.55)] mt-0.5 truncate max-w-xs">
-              {videoName}
-            </p>
+            <h3 className="text-xl font-normal text-neutral-900 leading-tight">Transformation complete</h3>
+            <p className="text-sm text-neutral-600 mt-0.5 truncate max-w-xs">{videoName}</p>
           </div>
         </div>
         <div
           className={`shrink-0 px-3 py-1.5 rounded-full text-xs border ${
             sssScore >= 80
-              ? "bg-[rgba(52,120,68,0.08)] border-[rgba(52,120,68,0.22)] text-[rgba(36,100,52,0.9)]"
-              : "bg-[rgba(194,122,14,0.08)] border-[rgba(194,122,14,0.22)] text-[rgba(154,92,4,0.9)]"
+              ? "bg-neutral-50 border-neutral-800 text-neutral-900"
+              : "bg-neutral-50 border-neutral-400 text-neutral-700"
           }`}
         >
           SSS {sssScore}/100
         </div>
       </div>
 
-      {/* Before / After toggle */}
       <div>
-        <div className="flex bg-white/50 rounded-full p-1 border border-white/50 w-fit mb-4">
+        <div className="flex bg-neutral-100 rounded-full p-1 border border-neutral-300 w-fit mb-4">
           {(["after", "before"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setActiveTab(t)}
               className={`px-5 py-1.5 rounded-full text-sm transition-all duration-200 ${
                 activeTab === t
-                  ? "bg-[#3b3a52] text-white shadow-sm"
-                  : "text-[rgba(30,50,90,0.55)] hover:text-[#3b3a52]"
+                  ? "bg-neutral-900 text-neutral-50 shadow-sm"
+                  : "text-neutral-600 hover:text-neutral-900"
               }`}
             >
               {t === "after" ? "Transformed" : "Original"}
@@ -79,7 +79,7 @@ export default function TransformResult({
           ))}
         </div>
 
-        <div className="relative rounded-[1.25rem] bg-[rgba(30,50,90,0.04)] border border-white/50 overflow-hidden aspect-video flex items-center justify-center">
+        <div className="relative rounded-[1.25rem] bg-neutral-100 border border-neutral-200 overflow-hidden aspect-video flex items-center justify-center">
           {activeTab === "before" ? (
             originalPreviewUrl ? (
               <video
@@ -91,12 +91,12 @@ export default function TransformResult({
               />
             ) : (
               <div className="text-center space-y-3">
-                <div className="w-14 h-14 rounded-full bg-white/70 border border-white/60 flex items-center justify-center mx-auto">
-                  <Play className="w-6 h-6 text-[rgba(30,50,90,0.5)]" />
+                <div className="w-14 h-14 rounded-full bg-neutral-200 border border-neutral-300 flex items-center justify-center mx-auto">
+                  <Play className="w-6 h-6 text-neutral-500" weight="fill" />
                 </div>
                 <div>
-                  <p className="text-sm text-[rgba(30,50,90,0.6)]">Original video</p>
-                  <p className="text-xs text-[rgba(30,50,90,0.4)] mt-0.5">Standard format, unmodified</p>
+                  <p className="text-sm text-neutral-600">Original video</p>
+                  <p className="text-xs text-neutral-500 mt-0.5">Standard format, unmodified</p>
                 </div>
               </div>
             )
@@ -112,15 +112,15 @@ export default function TransformResult({
           ) : (
             <div className="w-full h-full relative flex items-center justify-center">
               {selectedProfiles.has("sensory") && (
-                <div className="absolute inset-0 pointer-events-none bg-white/8 backdrop-saturate-75" />
+                <div className="absolute inset-0 pointer-events-none bg-neutral-100/90 backdrop-grayscale" />
               )}
               <div className="text-center space-y-4 relative z-10 px-6">
-                <div className="w-14 h-14 rounded-full bg-[rgba(59,58,82,0.1)] border border-[rgba(59,58,82,0.15)] flex items-center justify-center mx-auto">
-                  <Play className="w-6 h-6 text-[#3b3a52]" />
+                <div className="w-14 h-14 rounded-full bg-neutral-200 border border-neutral-300 flex items-center justify-center mx-auto">
+                  <Play className="w-6 h-6 text-neutral-900" weight="fill" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#3b3a52]">Sensory-safe version</p>
-                  <p className="text-xs text-[rgba(30,50,90,0.5)] mt-0.5">
+                  <p className="text-sm text-neutral-900">Sensory-safe version</p>
+                  <p className="text-xs text-neutral-500 mt-0.5">
                     {appliedProfiles.length} profile{appliedProfiles.length !== 1 ? "s" : ""} applied
                   </p>
                 </div>
@@ -145,11 +145,8 @@ export default function TransformResult({
         </div>
       </div>
 
-      {/* Applied transformations list */}
-      <div className="rounded-[1.25rem] bg-white/50 border border-white/50 px-5 py-4">
-        <p className="text-xs uppercase tracking-[0.15em] text-[rgba(30,50,90,0.5)] mb-3">
-          Applied transformations
-        </p>
+      <div className="rounded-[1.25rem] bg-neutral-50 border border-neutral-200 px-5 py-4">
+        <p className="text-xs uppercase tracking-[0.15em] text-neutral-500 mb-3">Applied transformations</p>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
           {allChanges.map(({ change, profile }) => (
             <div key={`${profile.id}-${change}`} className="flex items-center gap-2.5">
@@ -157,13 +154,12 @@ export default function TransformResult({
                 className="w-1.5 h-1.5 rounded-full shrink-0"
                 style={{ backgroundColor: profile.accentColor }}
               />
-              <span className="text-sm text-[rgba(30,50,90,0.7)]">{change}</span>
+              <span className="text-sm text-neutral-700">{change}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex flex-wrap gap-3">
         {outputUrl ? (
           <motion.a
@@ -173,9 +169,9 @@ export default function TransformResult({
             rel="noopener noreferrer"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="flex-1 flex items-center justify-center gap-2.5 bg-[#2d2c44] text-white rounded-full px-6 py-3 hover:bg-[#1d1c34] transition-colors text-sm min-w-[180px]"
+            className="flex-1 flex items-center justify-center gap-2.5 bg-neutral-900 text-neutral-50 rounded-full px-6 py-3 hover:bg-neutral-800 transition-colors text-sm min-w-[180px]"
           >
-            <Download className="w-4 h-4" />
+            <DownloadSimple className="w-4 h-4" weight="fill" />
             Download transformed video
           </motion.a>
         ) : (
@@ -183,9 +179,9 @@ export default function TransformResult({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             disabled
-            className="flex-1 flex items-center justify-center gap-2.5 bg-[#2d2c44] text-white rounded-full px-6 py-3 transition-colors text-sm min-w-[180px] opacity-40 cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-2.5 bg-neutral-900 text-neutral-50 rounded-full px-6 py-3 transition-colors text-sm min-w-[180px] opacity-40 cursor-not-allowed"
           >
-            <Download className="w-4 h-4" />
+            <DownloadSimple className="w-4 h-4" weight="fill" />
             Download transformed video
           </motion.button>
         )}
@@ -197,9 +193,9 @@ export default function TransformResult({
             rel="noopener noreferrer"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="flex items-center justify-center gap-2 bg-white/60 border border-white/55 text-[#3b3a52] rounded-full px-5 py-3 hover:bg-white/80 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 bg-neutral-100 border border-neutral-300 text-neutral-900 rounded-full px-5 py-3 hover:bg-neutral-200 transition-colors text-sm"
           >
-            <ExternalLink className="w-4 h-4" />
+            <ArrowSquareOut className="w-4 h-4" weight="fill" />
             Open in new tab
           </motion.a>
         )}
@@ -208,21 +204,20 @@ export default function TransformResult({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={onReset}
-          className="flex items-center justify-center gap-2 bg-white/50 border border-white/45 text-[rgba(30,50,90,0.6)] rounded-full px-5 py-3 hover:bg-white/70 transition-colors text-sm"
+          className="flex items-center justify-center gap-2 bg-neutral-50 border border-neutral-200 text-neutral-600 rounded-full px-5 py-3 hover:bg-neutral-100 transition-colors text-sm"
         >
-          <RotateCcw className="w-4 h-4" />
+          <ArrowCounterClockwise className="w-4 h-4" weight="fill" />
           New video
         </motion.button>
       </div>
 
-      {/* Runway attribution */}
-      <p className="text-xs text-center text-[rgba(30,50,90,0.3)]">
+      <p className="text-xs text-center text-neutral-500">
         Powered by{" "}
         <a
           href="https://runwayml.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-[rgba(30,50,90,0.55)] transition-colors"
+          className="underline underline-offset-2 hover:text-neutral-600 transition-colors"
         >
           Runway Gen-4 Aleph
         </a>
