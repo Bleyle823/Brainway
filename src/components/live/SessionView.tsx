@@ -10,7 +10,7 @@ interface Props {
 
 /**
  * Lives inside `<AvatarSession>`. Displays remote avatar video, optional
- * local screen-share preview, and CogniBridge media controls.
+ * local screen-share preview, and Brainwave media controls.
  */
 export default function SessionView({ selectedProfiles }: Props) {
   const applied = PROFILES.filter((p) => selectedProfiles.has(p.id));

@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, MagicWand, VideoCamera } from "@phosphor-icons/react";
+import { ArrowUpRight, MagicWand, VideoCamera, Sparkle } from "@phosphor-icons/react";
 
 export default function CTA() {
   return (
@@ -30,6 +30,19 @@ export default function CTA() {
               </span>
               <span className="text-sm md:text-base font-normal">Request access</span>
             </motion.button>
+
+            <Link to="/create">
+              <motion.span
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center bg-white/80 backdrop-blur-sm border border-neutral-400/70 text-neutral-950 rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-white transition-colors cursor-pointer"
+              >
+                <span className="bg-neutral-200 rounded-full p-2 flex items-center justify-center">
+                  <Sparkle className="w-5 h-5" weight="fill" />
+                </span>
+                <span className="text-sm md:text-base font-normal">Create educational video</span>
+              </motion.span>
+            </Link>
 
             <Link to="/live">
               <motion.span

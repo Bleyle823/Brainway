@@ -13,15 +13,10 @@ import {
   sleep,
   type RealtimeAvatarRef,
 } from "@/lib/runway-characters";
+import { getRunwayApiSecret } from "@/lib/runway-config";
 
 function getApiKey(): string {
-  const key = process.env.RUNWAYML_API_SECRET;
-  if (!key) {
-    throw new Error(
-      "RUNWAYML_API_SECRET is not configured. Set it before starting a Characters session.",
-    );
-  }
-  return key;
+  return getRunwayApiSecret();
 }
 
 function resolveAvatarRef(
@@ -53,18 +48,20 @@ export const createCharacterSessionFn = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<SessionCredentials> => {
     const key = getApiKey();
     const lang = data.targetLanguage ?? "en";
-    const personality = buildCharacterPersonality(data.profiles, data.config, lang);
-    const startScript = buildCharacterStartScript(data.profiles, lang);
     const avatar = resolveAvatarRef({
       avatarId: data.avatarId,
       avatarType: data.avatarType,
     });
 
+    const isPresetAvatar = avatar.type === "runway-preset";
+
     const { id: sessionId } = await createRealtimeSession(key, {
       model: "gwm1_avatars",
       avatar,
-      personality,
-      startScript,
+      ...(!isPresetAvatar && {
+        personality: buildCharacterPersonality(data.profiles, data.config, lang),
+        startScript: buildCharacterStartScript(data.profiles, lang),
+      }),
     });
 
     let sessionKey: string | undefined;

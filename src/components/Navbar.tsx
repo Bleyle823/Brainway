@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   MagicWand,
   VideoCamera,
+  Sparkle,
   Books,
   Image as ImageIcon,
   SpeakerHigh,
@@ -41,6 +42,16 @@ export default function Navbar() {
       <div className="md:hidden text-xl font-normal text-neutral-900 tracking-tight">Brainwave</div>
 
       <div className="flex-1 flex justify-end items-center gap-2 md:gap-3">
+        <Link to="/create">
+          <motion.span
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="hidden md:flex items-center gap-1.5 text-sm text-neutral-700 hover:text-neutral-900 transition-colors cursor-pointer"
+          >
+            <Sparkle className="w-4 h-4" weight="fill" />
+            Create
+          </motion.span>
+        </Link>
         <Link to="/community">
           <motion.span
             whileHover={{ scale: 1.02 }}

@@ -178,9 +178,13 @@ export default function VideoUploader({ video, onVideoReady, onClear }: Props) {
 
           <div className="w-20 h-14 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center shrink-0 overflow-hidden">
 
-            {video.previewUrl ? (
+            {(video.previewUrl ?? video.externalUrl) ? (
 
-              <video src={video.previewUrl} className="w-full h-full object-cover" muted />
+              <video
+                src={video.previewUrl ?? video.externalUrl}
+                className="w-full h-full object-cover"
+                muted
+              />
 
             ) : (
 

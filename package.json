@@ -1,5 +1,5 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "brainwave",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
-    "@phosphor-icons/react": "^2.1.10",
     "@hookform/resolvers": "^5.2.2",
+    "@phosphor-icons/react": "^2.1.10",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",
@@ -42,6 +42,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@runwayml/avatars-react": "^0.15.0",
+    "@runwayml/sdk": "^3.21.0",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-query": "^5.83.0",
     "@tanstack/react-router": "^1.168.25",

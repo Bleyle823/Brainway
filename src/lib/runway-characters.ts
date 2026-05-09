@@ -3,8 +3,9 @@
  * Cloudflare Workers–compatible — no Node-only SDK required.
  */
 
-const BASE = "https://api.dev.runwayml.com/v1";
-const VERSION = "2024-11-06";
+import { getRunwayApiBase, RUNWAY_API_VERSION } from "@/lib/runway-config";
+
+const VERSION = RUNWAY_API_VERSION;
 
 function jsonHeaders(key: string): Record<string, string> {
   return {
@@ -50,7 +51,7 @@ export async function createRealtimeSession(
   apiKey: string,
   params: CreateRealtimeSessionParams,
 ): Promise<CreateRealtimeSessionResult> {
-  const res = await fetch(`${BASE}/realtime_sessions`, {
+  const res = await fetch(`${getRunwayApiBase()}/realtime_sessions`, {
     method: "POST",
     headers: jsonHeaders(apiKey),
     body: JSON.stringify(params),
@@ -79,7 +80,7 @@ export async function getRealtimeSession(
   apiKey: string,
   sessionId: string,
 ): Promise<RealtimeSession> {
-  const res = await fetch(`${BASE}/realtime_sessions/${sessionId}`, {
+  const res = await fetch(`${getRunwayApiBase()}/realtime_sessions/${sessionId}`, {
     headers: jsonHeaders(apiKey),
   });
   await assertOk(res, "getRealtimeSession");
@@ -100,7 +101,7 @@ export async function consumeRealtimeSession(
   sessionKey: string,
   sessionId: string,
 ): Promise<ConsumeSessionCredentials> {
-  const res = await fetch(`${BASE}/realtime_sessions/${sessionId}/consume`, {
+  const res = await fetch(`${getRunwayApiBase()}/realtime_sessions/${sessionId}/consume`, {
     method: "POST",
     headers: sessionKeyHeaders(sessionKey),
   });

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/live")({
   component: LiveCharactersPage,
   head: () => ({
     meta: [
-      { title: "Live Session — CogniBridge" },
+      { title: "Live Session — Brainwave" },
       {
         name: "description",
         content:
@@ -168,7 +168,9 @@ function LiveCharactersPage() {
                     label="Companion language"
                   />
                   <p className="mt-2 text-xs text-neutral-500 max-w-sm">
-                    The avatar will greet and respond entirely in this language. Runway Characters enforces the language via system personality — no fine-tuning required.
+                    Runway only accepts <code className="text-[11px]">personality</code> and{" "}
+                    <code className="text-[11px]">startScript</code> for <strong className="font-medium text-neutral-700">custom</strong> avatars. Use{" "}
+                    <code className="text-[11px]">RUNWAY_CHARACTER_AVATAR_TYPE=custom</code> plus your avatar ID in env for multilingual + profile-tuned sessions; preset avatars keep the built‑in persona.
                   </p>
                 </div>
               </div>

@@ -20,7 +20,7 @@ export function buildCharacterPersonality(
   const isNonEnglish = targetLanguageCode !== "en";
 
   const chunks: string[] = [
-    "You are a calm CogniBridge learning companion in a Neurodiversity-Aware Classroom.",
+    "You are a calm Brainwave learning companion in a Neurodiversity-Aware Classroom.",
     ...(isNonEnglish
       ? [
           "",
