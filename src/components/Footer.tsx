@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+
 const cols = [
   { title: "Product", links: ["Overview", "How it works", "Pricing", "Changelog"] },
   { title: "For", links: ["Schools", "Therapists", "E-learning", "Parents"] },
@@ -11,7 +13,7 @@ export default function Footer() {
       <div className="w-full rounded-3xl md:rounded-4xl bg-neutral-950 text-neutral-100 px-6 md:px-12 py-14 md:py-20 border border-neutral-700">
         <div className="grid lg:grid-cols-[1.5fr_3fr] gap-12 lg:gap-16">
           <div>
-            <span className="text-2xl font-normal tracking-tight">CogniBridge</span>
+            <span className="text-2xl font-normal tracking-tight">Brainwave</span>
             <p className="mt-4 text-sm text-neutral-400 leading-relaxed max-w-xs">
               Sensory-aware video for the 1 in 7 learners traditional media leaves behind.
             </p>
@@ -34,8 +36,11 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-14 pt-6 border-t border-neutral-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-neutral-500">
-          <span>© {new Date().getFullYear()} CogniBridge. Built for every kind of mind.</span>
-          <div className="flex gap-5">
+          <span>© {new Date().getFullYear()} Brainwave. Built for every kind of mind.</span>
+          <div className="flex flex-wrap gap-5">
+            <Link to="/community" className="hover:text-neutral-300 transition-colors">
+              Community safe library
+            </Link>
             <a href="#" className="hover:text-neutral-300 transition-colors">Privacy</a>
             <a href="#" className="hover:text-neutral-300 transition-colors">Terms</a>
             <a href="#" className="hover:text-neutral-300 transition-colors">Accessibility statement</a>

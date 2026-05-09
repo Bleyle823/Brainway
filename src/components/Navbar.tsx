@@ -5,6 +5,9 @@ import {
   ArrowUpRight,
   MagicWand,
   VideoCamera,
+  Books,
+  Image as ImageIcon,
+  SpeakerHigh,
 } from "@phosphor-icons/react";
 
 const menu = [
@@ -18,7 +21,7 @@ export default function Navbar() {
   return (
     <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 md:px-8 py-4 md:py-6">
       <div className="hidden md:block flex-1">
-        <span className="text-xl font-normal text-neutral-900 tracking-tight">CogniBridge</span>
+        <span className="text-xl font-normal text-neutral-900 tracking-tight">Brainwave</span>
       </div>
 
       <ul className="hidden md:flex items-center gap-6 lg:gap-8 bg-white/40 backdrop-blur-md border border-neutral-300/60 rounded-full px-6 py-2.5 text-sm text-neutral-800">
@@ -35,9 +38,19 @@ export default function Navbar() {
         ))}
       </ul>
 
-      <div className="md:hidden text-xl font-normal text-neutral-900 tracking-tight">CogniBridge</div>
+      <div className="md:hidden text-xl font-normal text-neutral-900 tracking-tight">Brainwave</div>
 
       <div className="flex-1 flex justify-end items-center gap-2 md:gap-3">
+        <Link to="/community">
+          <motion.span
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="hidden md:flex items-center gap-1.5 text-sm text-neutral-700 hover:text-neutral-900 transition-colors cursor-pointer"
+          >
+            <Books className="w-4 h-4" weight="duotone" />
+            Safe library
+          </motion.span>
+        </Link>
         <Link to="/live">
           <motion.span
             whileHover={{ scale: 1.02 }}
@@ -56,6 +69,26 @@ export default function Navbar() {
           >
             <MagicWand className="w-4 h-4" weight="fill" />
             Transform
+          </motion.span>
+        </Link>
+        <Link to="/transform" search={{ tab: "image" }}>
+          <motion.span
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="hidden md:flex items-center gap-1.5 text-sm text-neutral-700 hover:text-neutral-900 transition-colors cursor-pointer"
+          >
+            <ImageIcon className="w-4 h-4" weight="fill" />
+            Safe images
+          </motion.span>
+        </Link>
+        <Link to="/transform" search={{ tab: "audio" }}>
+          <motion.span
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="hidden md:flex items-center gap-1.5 text-sm text-neutral-700 hover:text-neutral-900 transition-colors cursor-pointer"
+          >
+            <SpeakerHigh className="w-4 h-4" weight="fill" />
+            Safe audio
           </motion.span>
         </Link>
         <motion.button

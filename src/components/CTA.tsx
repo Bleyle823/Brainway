@@ -17,7 +17,7 @@ export default function CTA() {
             Build learning that doesn't burn out the learner.
           </h2>
           <p className="mt-5 text-base md:text-lg text-neutral-700 max-w-xl mx-auto">
-            Get early access to CogniBridge and convert your first source into a sensory-safe video this week.
+            Get early access to Brainwave and convert your first source into a sensory-safe video this week.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <motion.button
@@ -35,9 +35,9 @@ export default function CTA() {
               <motion.span
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center bg-white/80 backdrop-blur-sm border border-neutral-400/70 text-neutral-950 rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-white transition-colors cursor-pointer"
+                className="inline-flex items-center bg-white/60 backdrop-blur-sm border border-neutral-400/60 text-neutral-950 rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-white/80 transition-colors cursor-pointer"
               >
-                <span className="bg-neutral-200 rounded-full p-2 flex items-center justify-center">
+                <span className="bg-neutral-200/80 rounded-full p-2 flex items-center justify-center">
                   <VideoCamera className="w-5 h-5" weight="fill" />
                 </span>
                 <span className="text-sm md:text-base font-normal">Live Character session</span>
