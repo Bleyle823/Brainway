@@ -65,7 +65,7 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
 export const Route = createFileRoute("/transform")({
   component: TransformPage,
-  validateSearch: transformSearchSchema,
+  // Temporarily disabled to debug: validateSearch: transformSearchSchema,
   head: () => ({
     meta: [
       { title: "Transform Content — Brainwave" },
@@ -126,7 +126,8 @@ function mapProgressToStep(
 
 function TransformPage() {
   const navigate = useNavigate();
-  const { videoUrl, tab, imageMode: imageModeSearch, videoMode: videoModeSearch, audioMode: audioModeSearch } = Route.useSearch();
+  const searchParams = Route.useSearch();
+  const { videoUrl, tab, imageMode: imageModeSearch, videoMode: videoModeSearch, audioMode: audioModeSearch } = searchParams || {};
   const [mode, setMode] = useState<Mode>("video");
   const [stage, setStage] = useState<Stage>("upload");
   const [video, setVideo] = useState<VideoInfo | null>(null);
@@ -219,10 +220,20 @@ function TransformPage() {
   }, []);
 
   useEffect(() => {
-    if (tab === "image") setMode("image");
-    if (tab === "video") setMode("video");
-    if (tab === "audio") setMode("audio");
-  }, [tab]);
+    console.log("Transform page tab effect:", { tab, searchParams });
+    if (tab === "image") {
+      console.log("Setting mode to image");
+      setMode("image");
+    }
+    if (tab === "video") {
+      console.log("Setting mode to video");
+      setMode("video");
+    }
+    if (tab === "audio") {
+      console.log("Setting mode to audio");
+      setMode("audio");
+    }
+  }, [tab, searchParams]);
 
   useEffect(() => {
     if (tab === "image" && imageModeSearch) {
