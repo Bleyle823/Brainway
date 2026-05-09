@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TransformRouteImport } from './routes/transform'
+import { Route as SafeImagesRouteImport } from './routes/safe-images'
+import { Route as SafeAudioRouteImport } from './routes/safe-audio'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as CommunityRouteImport } from './routes/community'
@@ -18,6 +20,16 @@ import { Route as IndexRouteImport } from './routes/index'
 const TransformRoute = TransformRouteImport.update({
   id: '/transform',
   path: '/transform',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SafeImagesRoute = SafeImagesRouteImport.update({
+  id: '/safe-images',
+  path: '/safe-images',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SafeAudioRoute = SafeAudioRouteImport.update({
+  id: '/safe-audio',
+  path: '/safe-audio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LiveRoute = LiveRouteImport.update({
@@ -46,6 +58,8 @@ export interface FileRoutesByFullPath {
   '/community': typeof CommunityRoute
   '/create': typeof CreateRoute
   '/live': typeof LiveRoute
+  '/safe-audio': typeof SafeAudioRoute
+  '/safe-images': typeof SafeImagesRoute
   '/transform': typeof TransformRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +67,8 @@ export interface FileRoutesByTo {
   '/community': typeof CommunityRoute
   '/create': typeof CreateRoute
   '/live': typeof LiveRoute
+  '/safe-audio': typeof SafeAudioRoute
+  '/safe-images': typeof SafeImagesRoute
   '/transform': typeof TransformRoute
 }
 export interface FileRoutesById {
@@ -61,14 +77,38 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/create': typeof CreateRoute
   '/live': typeof LiveRoute
+  '/safe-audio': typeof SafeAudioRoute
+  '/safe-images': typeof SafeImagesRoute
   '/transform': typeof TransformRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/community' | '/create' | '/live' | '/transform'
+  fullPaths:
+    | '/'
+    | '/community'
+    | '/create'
+    | '/live'
+    | '/safe-audio'
+    | '/safe-images'
+    | '/transform'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/community' | '/create' | '/live' | '/transform'
-  id: '__root__' | '/' | '/community' | '/create' | '/live' | '/transform'
+  to:
+    | '/'
+    | '/community'
+    | '/create'
+    | '/live'
+    | '/safe-audio'
+    | '/safe-images'
+    | '/transform'
+  id:
+    | '__root__'
+    | '/'
+    | '/community'
+    | '/create'
+    | '/live'
+    | '/safe-audio'
+    | '/safe-images'
+    | '/transform'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +116,8 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   CreateRoute: typeof CreateRoute
   LiveRoute: typeof LiveRoute
+  SafeAudioRoute: typeof SafeAudioRoute
+  SafeImagesRoute: typeof SafeImagesRoute
   TransformRoute: typeof TransformRoute
 }
 
@@ -86,6 +128,20 @@ declare module '@tanstack/react-router' {
       path: '/transform'
       fullPath: '/transform'
       preLoaderRoute: typeof TransformRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/safe-images': {
+      id: '/safe-images'
+      path: '/safe-images'
+      fullPath: '/safe-images'
+      preLoaderRoute: typeof SafeImagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/safe-audio': {
+      id: '/safe-audio'
+      path: '/safe-audio'
+      fullPath: '/safe-audio'
+      preLoaderRoute: typeof SafeAudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/live': {
@@ -124,6 +180,8 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRoute: CommunityRoute,
   CreateRoute: CreateRoute,
   LiveRoute: LiveRoute,
+  SafeAudioRoute: SafeAudioRoute,
+  SafeImagesRoute: SafeImagesRoute,
   TransformRoute: TransformRoute,
 }
 export const routeTree = rootRouteImport

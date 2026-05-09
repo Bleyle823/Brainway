@@ -82,7 +82,7 @@ export default function Navbar() {
             Transform
           </motion.span>
         </Link>
-        <Link to="/transform" search={{ tab: "image" }}>
+        <Link to="/safe-images">
           <motion.span
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -92,7 +92,7 @@ export default function Navbar() {
             Safe images
           </motion.span>
         </Link>
-        <Link to="/transform" search={{ tab: "audio" }}>
+        <Link to="/safe-audio">
           <motion.span
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
