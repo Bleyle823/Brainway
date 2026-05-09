@@ -12,6 +12,8 @@ import ProfileSelector, { type ProfileId } from "@/components/transform/ProfileS
 import TransformConfig, { type AllConfig } from "@/components/transform/TransformConfig";
 import ProcessingPipeline from "@/components/transform/ProcessingPipeline";
 import TransformResult from "@/components/transform/TransformResult";
+import LanguageSelector from "@/components/LanguageSelector";
+import { DEFAULT_LANGUAGE_CODE } from "@/lib/languages";
 import {
   createUploadIntentFn,
   startTransformFn,
@@ -85,6 +87,7 @@ function TransformPage() {
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
   const [taskError, setTaskError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [targetLanguage, setTargetLanguage] = useState(DEFAULT_LANGUAGE_CODE);
 
   const sssScore = useRef(Math.floor(Math.random() * 8) + 88);
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -201,6 +204,7 @@ function TransformPage() {
           videoSource,
           profiles: Array.from(selectedProfiles),
           config,
+          targetLanguage,
         },
       });
 
@@ -235,6 +239,7 @@ function TransformPage() {
     setOutputUrl(null);
     setTaskError(null);
     setIsUploading(false);
+    setTargetLanguage(DEFAULT_LANGUAGE_CODE);
     sssScore.current = Math.floor(Math.random() * 8) + 88;
   }, [taskId]);
 
@@ -468,6 +473,17 @@ function TransformPage() {
                   No profiles selected — go back to choose at least one.
                 </p>
               )}
+
+              <div className="mt-6 pt-6 border-t border-neutral-200">
+                <LanguageSelector
+                  value={targetLanguage}
+                  onChange={setTargetLanguage}
+                  label="Output language"
+                />
+                <p className="mt-2 text-xs text-neutral-500 max-w-sm">
+                  Aleph will translate on-screen text and captions into the selected language. The presenter audio is preserved; subtitles are added for non-English targets.
+                </p>
+              </div>
             </motion.div>
           )}
 

@@ -45,13 +45,15 @@ export interface StartTransformInput {
   videoSource: string;
   profiles: ProfileId[];
   config: AllConfig;
+  /** BCP-47 language code for the output video (default: "en") */
+  targetLanguage?: string;
 }
 
 export const startTransformFn = createServerFn({ method: "POST" })
   .inputValidator((d: StartTransformInput) => d)
   .handler(async ({ data }): Promise<{ taskId: string }> => {
     const key = getApiKey();
-    const prompt = buildTransformPrompt(data.profiles, data.config);
+    const prompt = buildTransformPrompt(data.profiles, data.config, data.targetLanguage ?? "en");
 
     const task = await startVideoToVideo(key, {
       model: "gen4_aleph",

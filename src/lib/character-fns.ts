@@ -44,6 +44,8 @@ function resolveAvatarRef(
 export interface CreateCharacterSessionInput {
   profiles: ProfileId[];
   config: AllConfig;
+  /** BCP-47 language code for the session (default: "en") */
+  targetLanguage?: string;
   /** Optional per-request avatar override */
   avatarId?: string;
   avatarType?: "custom" | "preset";
@@ -53,8 +55,9 @@ export const createCharacterSessionFn = createServerFn({ method: "POST" })
   .inputValidator((d: CreateCharacterSessionInput) => d)
   .handler(async ({ data }): Promise<SessionCredentials> => {
     const key = getApiKey();
-    const personality = buildCharacterPersonality(data.profiles, data.config);
-    const startScript = buildCharacterStartScript(data.profiles);
+    const lang = data.targetLanguage ?? "en";
+    const personality = buildCharacterPersonality(data.profiles, data.config, lang);
+    const startScript = buildCharacterStartScript(data.profiles, lang);
     const avatar = resolveAvatarRef({
       avatarId: data.avatarId,
       avatarType: data.avatarType,

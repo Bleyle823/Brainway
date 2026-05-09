@@ -1,5 +1,6 @@
 import type { ProfileId } from "@/components/transform/ProfileSelector";
 import type { AllConfig } from "@/components/transform/TransformConfig";
+import { getLanguage } from "@/lib/languages";
 
 /**
  * Builds a gen4_aleph video-to-video prompt from the user's selected
@@ -11,10 +12,25 @@ import type { AllConfig } from "@/components/transform/TransformConfig";
 export function buildTransformPrompt(
   profiles: ProfileId[],
   config: AllConfig,
+  targetLanguageCode = "en",
 ): string {
+  const lang = getLanguage(targetLanguageCode);
+  const isNonEnglish = targetLanguageCode !== "en";
+
   const parts: string[] = [
     "Transform this educational video to be accessible for neurodivergent learners.",
   ];
+
+  if (isNonEnglish) {
+    parts.push(
+      `Translate all on-screen text, titles, captions, and labels into ${lang.name} (${lang.nativeName}).` +
+        ` If the presenter speaks in a language other than ${lang.name}, add clearly readable ${lang.name} subtitles at the bottom of the frame.` +
+        (lang.rtl
+          ? ` Text must be rendered right-to-left as required by ${lang.name} script.`
+          : "") +
+        ` Keep all translated text high-contrast, easy to read, and properly localised — not word-for-word machine-literal.`,
+    );
+  }
 
   if (profiles.includes("adhd")) {
     const cfg = config.adhd ?? {};
@@ -64,6 +80,12 @@ export function buildTransformPrompt(
     "Preserve the original educational content, presenter, and spoken audio. " +
       "Keep the video calm, gentle, and visually comfortable.",
   );
+
+  if (isNonEnglish) {
+    parts.push(
+      `Final output: all visible text must be in ${lang.name}. Accessibility modifications and language adaptation should work together — do not sacrifice either for the other.`,
+    );
+  }
 
   return parts.join(" ");
 }

@@ -8,6 +8,8 @@ import "@runwayml/avatars-react/styles.css";
 import ProfileSelector, { type ProfileId } from "@/components/transform/ProfileSelector";
 import TransformConfig, { type AllConfig } from "@/components/transform/TransformConfig";
 import SessionView from "@/components/live/SessionView";
+import LanguageSelector from "@/components/LanguageSelector";
+import { DEFAULT_LANGUAGE_CODE } from "@/lib/languages";
 import { createCharacterSessionFn } from "@/lib/character-fns";
 
 export const Route = createFileRoute("/live")({
@@ -33,6 +35,7 @@ function LiveCharactersPage() {
   const [credentials, setCredentials] = useState<SessionCredentials | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [clientReady, setClientReady] = useState(false);
+  const [targetLanguage, setTargetLanguage] = useState(DEFAULT_LANGUAGE_CODE);
 
   useEffect(() => {
     setClientReady(true);
@@ -63,6 +66,7 @@ function LiveCharactersPage() {
     setConfig({} as AllConfig);
     setCredentials(null);
     setError(null);
+    setTargetLanguage(DEFAULT_LANGUAGE_CODE);
   }, []);
 
   const handleStartSession = useCallback(async () => {
@@ -74,6 +78,7 @@ function LiveCharactersPage() {
         data: {
           profiles: Array.from(selectedProfiles),
           config,
+          targetLanguage,
         },
       });
       setCredentials(creds);
@@ -154,6 +159,17 @@ function LiveCharactersPage() {
                       Select at least one profile to specialise the companion persona.
                     </p>
                   )}
+                </div>
+
+                <div className="pt-4 border-t border-neutral-200">
+                  <LanguageSelector
+                    value={targetLanguage}
+                    onChange={setTargetLanguage}
+                    label="Companion language"
+                  />
+                  <p className="mt-2 text-xs text-neutral-500 max-w-sm">
+                    The avatar will greet and respond entirely in this language. Runway Characters enforces the language via system personality — no fine-tuning required.
+                  </p>
                 </div>
               </div>
 

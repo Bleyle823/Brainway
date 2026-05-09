@@ -1,5 +1,6 @@
 import type { ProfileId } from "@/components/transform/ProfileSelector";
 import type { AllConfig } from "@/components/transform/TransformConfig";
+import { getLanguage } from "@/lib/languages";
 
 /**
  * Builds a system prompt / personality override for Runway Characters
@@ -13,9 +14,25 @@ import type { AllConfig } from "@/components/transform/TransformConfig";
 export function buildCharacterPersonality(
   profiles: ProfileId[],
   config: AllConfig,
+  targetLanguageCode = "en",
 ): string {
+  const lang = getLanguage(targetLanguageCode);
+  const isNonEnglish = targetLanguageCode !== "en";
+
   const chunks: string[] = [
     "You are a calm CogniBridge learning companion in a Neurodiversity-Aware Classroom.",
+    ...(isNonEnglish
+      ? [
+          "",
+          `### Language`,
+          `You MUST respond exclusively in ${lang.name} (${lang.nativeName}) at all times.`,
+          `Do NOT switch to English or any other language unless the learner explicitly asks you to.`,
+          `Greet the learner in ${lang.name}. Use natural, spoken-register ${lang.name} — not literal translation.`,
+          ...(lang.rtl
+            ? [`Text should be composed right-to-left as appropriate for ${lang.name}.`]
+            : []),
+        ]
+      : []),
     "",
     "### Your role",
     "- A human instructor is teaching (you may hear them and/or see slides via screen share).",
@@ -96,27 +113,27 @@ export function buildCharacterPersonality(
   return text;
 }
 
-export function buildCharacterStartScript(profiles: ProfileId[]): string {
-  const intros: string[] = [
-    "Hi — I'll stay alongside you calmly while your instructor teaches.",
-  ];
+export function buildCharacterStartScript(
+  profiles: ProfileId[],
+  targetLanguageCode = "en",
+): string {
+  const lang = getLanguage(targetLanguageCode);
 
-  if (profiles.includes("adhd"))
-    intros.push("I'll recap in steady short segments.");
+  // Use the pre-written native greeting rather than asking the model to translate.
+  const base = lang.greeting;
 
-  if (profiles.includes("autism"))
-    intros.push("Transitions will sound predictable.");
+  const addons: string[] = [];
 
-  if (profiles.includes("dyslexia"))
-    intros.push("I'll read aloud any dense text plainly.");
+  if (targetLanguageCode === "en") {
+    // English — add profile-specific appendages in English
+    if (profiles.includes("adhd")) addons.push("I'll recap in steady short segments.");
+    if (profiles.includes("autism")) addons.push("Transitions will sound predictable.");
+    if (profiles.includes("dyslexia")) addons.push("I'll read aloud any dense text plainly.");
+    if (profiles.includes("sensory")) addons.push("I'll keep pacing soft and visuals described gently.");
+  }
+  // For non-English the greeting already serves as the opener; profile
+  // behaviour is enforced via the personality prompt instead.
 
-  if (profiles.includes("sensory"))
-    intros.push("I'll keep pacing soft and visuals described gently.");
-
-  intros.push(
-    "Share slides or mic me when you're ready — ask quietly any time.",
-  );
-
-  const script = intros.join(" ");
+  const script = [base, ...addons].join(" ");
   return script.length > 2_000 ? script.slice(0, 1997) + "…" : script;
 }
