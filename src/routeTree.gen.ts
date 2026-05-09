@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TransformRouteImport } from './routes/transform'
 import { Route as LiveRouteImport } from './routes/live'
-import { Route as CreateRouteImport } from './routes/create'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -23,11 +22,6 @@ const TransformRoute = TransformRouteImport.update({
 const LiveRoute = LiveRouteImport.update({
   id: '/live',
   path: '/live',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CreateRoute = CreateRouteImport.update({
-  id: '/create',
-  path: '/create',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunityRoute = CommunityRouteImport.update({
@@ -44,14 +38,12 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/community': typeof CommunityRoute
-  '/create': typeof CreateRoute
   '/live': typeof LiveRoute
   '/transform': typeof TransformRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/community': typeof CommunityRoute
-  '/create': typeof CreateRoute
   '/live': typeof LiveRoute
   '/transform': typeof TransformRoute
 }
@@ -59,22 +51,20 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/community': typeof CommunityRoute
-  '/create': typeof CreateRoute
   '/live': typeof LiveRoute
   '/transform': typeof TransformRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/community' | '/create' | '/live' | '/transform'
+  fullPaths: '/' | '/community' | '/live' | '/transform'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/community' | '/create' | '/live' | '/transform'
-  id: '__root__' | '/' | '/community' | '/create' | '/live' | '/transform'
+  to: '/' | '/community' | '/live' | '/transform'
+  id: '__root__' | '/' | '/community' | '/live' | '/transform'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CommunityRoute: typeof CommunityRoute
-  CreateRoute: typeof CreateRoute
   LiveRoute: typeof LiveRoute
   TransformRoute: typeof TransformRoute
 }
@@ -93,13 +83,6 @@ declare module '@tanstack/react-router' {
       path: '/live'
       fullPath: '/live'
       preLoaderRoute: typeof LiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/create': {
-      id: '/create'
-      path: '/create'
-      fullPath: '/create'
-      preLoaderRoute: typeof CreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/community': {
@@ -122,7 +105,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CommunityRoute: CommunityRoute,
-  CreateRoute: CreateRoute,
   LiveRoute: LiveRoute,
   TransformRoute: TransformRoute,
 }
