@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 import HeroBadge from "./HeroBadge";
 import BottomLeftCard from "./BottomLeftCard";
 import BottomRightCorner from "./BottomRightCorner";
-import heroImage from "@/assets/hero-cognibridge.png";
+import heroImage from "@/assets/hero-brainwave.png";
 
 export default function Hero() {
   return (
@@ -37,7 +37,7 @@ export default function Hero() {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="text-sm sm:text-base md:text-lg text-neutral-800/90 leading-relaxed max-w-xl font-normal drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)]"
               >
-                CogniBridge turns any document, link, or voice memo into calm, sensory-aware video tuned for ADHD and autistic learners.
+                Brainwave turns any document, link, or voice memo into calm, sensory-aware video tuned for ADHD and autistic learners.
               </motion.p>
             </div>
           </div>

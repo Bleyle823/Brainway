@@ -6,7 +6,7 @@ const steps = [
     icon: FileText,
     step: "01",
     title: "Drop in any source",
-    body: "PDF, URL, or a voice memo. Course chapters, IEP goals, therapy worksheets — CogniBridge ingests it all.",
+    body: "PDF, URL, or a voice memo. Course chapters, IEP goals, therapy worksheets — Brainwave ingests it all.",
   },
   {
     icon: Sparkle,
