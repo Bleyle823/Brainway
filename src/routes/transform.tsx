@@ -221,6 +221,7 @@ function TransformPage() {
   useEffect(() => {
     if (tab === "image") setMode("image");
     if (tab === "video") setMode("video");
+    if (tab === "audio") setMode("audio");
   }, [tab]);
 
   useEffect(() => {
