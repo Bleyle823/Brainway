@@ -33,7 +33,7 @@ async function assertOk(res: Response, label: string): Promise<void> {
 
 export type RealtimeAvatarRef =
   | { type: "custom"; avatarId: string }
-  | { type: "preset"; avatarId: string };
+  | { type: "runway-preset"; presetId: string };
 
 export interface CreateRealtimeSessionParams {
   model: "gwm1_avatars";

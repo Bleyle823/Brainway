@@ -25,20 +25,17 @@ function getApiKey(): string {
 }
 
 function resolveAvatarRef(
-  overrides?: { avatarId?: string; avatarType?: "custom" | "preset" },
+  overrides?: { avatarId?: string; avatarType?: "custom" | "runway-preset" },
 ): RealtimeAvatarRef {
   const id =
     overrides?.avatarId ??
     process.env.RUNWAY_CHARACTER_AVATAR_ID ??
     "music-superstar";
-  const type =
-    overrides?.avatarType ??
-    ((process.env.RUNWAY_CHARACTER_AVATAR_TYPE ?? "preset") === "custom"
-      ? "custom"
-      : "preset");
-  return type === "custom"
+  const isCustom =
+    (overrides?.avatarType ?? process.env.RUNWAY_CHARACTER_AVATAR_TYPE ?? "runway-preset") === "custom";
+  return isCustom
     ? { type: "custom", avatarId: id }
-    : { type: "preset", avatarId: id };
+    : { type: "runway-preset", presetId: id };
 }
 
 export interface CreateCharacterSessionInput {
@@ -48,7 +45,7 @@ export interface CreateCharacterSessionInput {
   targetLanguage?: string;
   /** Optional per-request avatar override */
   avatarId?: string;
-  avatarType?: "custom" | "preset";
+  avatarType?: "custom" | "runway-preset";
 }
 
 export const createCharacterSessionFn = createServerFn({ method: "POST" })
