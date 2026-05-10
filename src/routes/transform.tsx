@@ -18,6 +18,7 @@ import LanguageSelector from "@/components/LanguageSelector";
 import { DEFAULT_LANGUAGE_CODE } from "@/lib/languages";
 import { buildTransformPrompt } from "@/lib/transform-prompts";
 import type { Act2Ratio } from "@/lib/runway-api";
+import { validateApiKeyFn } from "@/lib/validate-api-key";
 import {
   DEMO_PRESET_CONFIG,
   DEMO_PROFILE_IDS,
@@ -99,6 +100,8 @@ function TransformPage() {
   const [taskError, setTaskError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [targetLanguage, setTargetLanguage] = useState(DEFAULT_LANGUAGE_CODE);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
+  const [apiKeyStatus, setApiKeyStatus] = useState<"checking" | "valid" | "invalid">("checking");
   /** Set for the one-click demo (reproducible Aleph seed on HTTPS inputs). */
   const [transformSeed, setTransformSeed] = useState<number | undefined>(undefined);
   const [videoInputMode, setVideoInputMode] = useState<VideoInputMode>("aleph");
@@ -123,6 +126,24 @@ function TransformPage() {
 
   useEffect(() => {
     isMountedRef.current = true;
+    // Add debug info about the environment
+    setDebugInfo(`Transform page loaded. Environment: ${typeof window !== 'undefined' ? 'client' : 'server'}`);
+    
+    // Validate API key on mount
+    validateApiKeyFn().then((result) => {
+      if (!isMountedRef.current) return;
+      if (result.success && result.hasKey) {
+        setApiKeyStatus("valid");
+      } else {
+        setApiKeyStatus("invalid");
+        setTaskError(result.error || "API key not configured");
+      }
+    }).catch((err) => {
+      if (!isMountedRef.current) return;
+      setApiKeyStatus("invalid");
+      setTaskError(`API validation failed: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
+    
     return () => {
       isMountedRef.current = false;
       if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
@@ -198,6 +219,22 @@ function TransformPage() {
       }
     }, POLL_INTERVAL_MS);
   }, []);
+
+  const calmPresenterCharacterReady =
+    calmPresenterCharacterMode === "file"
+      ? calmPresenterCharacterFile !== null
+      : /^https?:\/\//i.test(calmPresenterCharacterUrl.trim());
+
+  const calmPresenterReferenceReady =
+    calmPresenterReferenceMode === "file"
+      ? calmPresenterReferenceFile !== null
+      : /^https?:\/\//i.test(calmPresenterReferenceUrl.trim());
+
+  const calmPresenterStep1Ready = calmPresenterCharacterReady && calmPresenterReferenceReady;
+
+  const videoStep1Ready =
+    videoInputMode === "aleph" ? video !== null : calmPresenterStep1Ready;
+
   // -------------------------------------------------------------------------
   // Start transform
   // -------------------------------------------------------------------------
@@ -357,9 +394,9 @@ function TransformPage() {
       }
     } catch (err) {
       setIsUploading(false);
-      const msg =
-        err instanceof Error ? err.message : "Failed to start transform.";
-      setTaskError(msg);
+      const msg = err instanceof Error ? err.message : "Failed to start transform.";
+      console.error("Transform error:", err);
+      setTaskError(`${msg} ${debugInfo ? `(Debug: ${debugInfo})` : ""}`);
       setStage("configure");
     }
   }, [
@@ -511,25 +548,12 @@ function TransformPage() {
 
   const wizardIdx = WIZARD_STEPS.findIndex((s) => s.key === stage);
 
-  const calmPresenterCharacterReady =
-    calmPresenterCharacterMode === "file"
-      ? calmPresenterCharacterFile !== null
-      : /^https?:\/\//i.test(calmPresenterCharacterUrl.trim());
-
-  const calmPresenterReferenceReady =
-    calmPresenterReferenceMode === "file"
-      ? calmPresenterReferenceFile !== null
-      : /^https?:\/\//i.test(calmPresenterReferenceUrl.trim());
-
-  const calmPresenterStep1Ready = calmPresenterCharacterReady && calmPresenterReferenceReady;
-
-  const videoStep1Ready =
-    videoInputMode === "aleph" ? video !== null : calmPresenterStep1Ready;
-
   const canAdvance =
-    (stage === "upload" && videoStep1Ready) ||
-    (stage === "profiles" && selectedProfiles.size > 0) ||
-    stage === "configure";
+    apiKeyStatus === "valid" && (
+      (stage === "upload" && videoStep1Ready) ||
+      (stage === "profiles" && selectedProfiles.size > 0) ||
+      stage === "configure"
+    );
 
   const isWizardStage = wizardIdx !== -1;
 
@@ -641,7 +665,43 @@ function TransformPage() {
               </div>
 
               <AnimatePresence>
-                {taskError && (
+                {apiKeyStatus === "checking" && (
+                  <motion.div
+                    key="api-key-checking"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    className="mt-6 flex items-start gap-3 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3"
+                  >
+                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin shrink-0 mt-0.5" />
+                    <p className="text-sm text-blue-700 leading-snug">
+                      Checking API configuration...
+                    </p>
+                  </motion.div>
+                )}
+                {apiKeyStatus === "invalid" && (
+                  <motion.div
+                    key="api-key-error"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    className="mt-6 flex items-start gap-3 rounded-xl bg-orange-50 border border-orange-200 px-4 py-3"
+                  >
+                    <WarningCircle weight="fill" className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-orange-700 leading-snug font-medium">
+                        API Configuration Required
+                      </p>
+                      <p className="text-xs text-orange-600 mt-1">
+                        RUNWAYML_API_SECRET is not configured. Please add your Runway API key to the .env file and restart the development server.
+                      </p>
+                      <p className="text-xs text-orange-500 mt-2">
+                        Get your API key at <a href="https://dev.runwayml.com" target="_blank" rel="noopener" className="underline">dev.runwayml.com</a>
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+                {taskError && apiKeyStatus === "valid" && (
                   <motion.div
                     key="error"
                     initial={{ opacity: 0, y: 6 }}
@@ -650,7 +710,12 @@ function TransformPage() {
                     className="mt-6 flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 px-4 py-3"
                   >
                     <WarningCircle weight="fill" className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-700 leading-snug">{taskError}</p>
+                    <div>
+                      <p className="text-sm text-red-700 leading-snug">{taskError}</p>
+                      {debugInfo && (
+                        <p className="text-xs text-red-500 mt-1 font-mono">{debugInfo}</p>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -1038,7 +1103,7 @@ function TransformPage() {
               </p>
             )}
           </div>
-          <div className="rounded-[1.5rem] bg-neutral-100/95 backdrop-blur-sm border border-neutral-200 p-6 md:p-8">
+          <div className="rounded-3xl bg-neutral-100/95 backdrop-blur-sm border border-neutral-200 p-6 md:p-8">
             <ProcessingPipeline
               selectedProfiles={selectedProfiles}
               currentStep={processingStep}
@@ -1060,7 +1125,7 @@ function TransformPage() {
           transition={{ duration: 0.35 }}
           className="mt-4"
         >
-          <div className="rounded-[1.5rem] bg-neutral-100/95 backdrop-blur-sm border border-neutral-200 p-6 md:p-8">
+          <div className="rounded-3xl bg-neutral-100/95 backdrop-blur-sm border border-neutral-200 p-6 md:p-8">
             <TransformResult
               videoName={video.name}
               originalPreviewUrl={video.previewUrl ?? video.externalUrl}

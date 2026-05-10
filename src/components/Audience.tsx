@@ -10,7 +10,7 @@ const groups = [
 
 export default function Audience() {
   return (
-    <section className="w-full px-4 md:px-8 py-20 md:py-32 bg-neutral-200">
+    <section className="w-full px-4 md:px-8 py-20 md:py-32 bg-white">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

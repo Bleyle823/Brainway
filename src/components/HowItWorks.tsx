@@ -24,7 +24,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="w-full px-4 md:px-8 py-20 md:py-32 bg-neutral-200">
+    <section className="w-full px-4 md:px-8 py-20 md:py-32 bg-[#f4f4f5]">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -47,7 +47,7 @@ export default function HowItWorks() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="p-6 md:p-8 rounded-3xl bg-gradient-to-br from-neutral-100/95 to-neutral-300/55 backdrop-blur-sm border border-neutral-400/55 min-h-[260px] flex flex-col"
+              className="p-6 md:p-8 rounded-3xl bg-neutral-200 border border-neutral-300 min-h-[260px] flex flex-col"
             >
               <div className="flex items-center justify-between mb-6">
                 <span className="text-xs font-normal text-neutral-500 tracking-wider">{s.step}</span>
