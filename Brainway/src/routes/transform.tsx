@@ -67,7 +67,7 @@ export const Route = createFileRoute("/transform")({
   component: TransformPage,
   head: () => ({
     meta: [
-      { title: "Transform Content — Brainwave" },
+      { title: "Transform Content — Brainway" },
       {
         name: "description",
         content:
@@ -568,7 +568,7 @@ function TransformPage() {
         <Link to="/" className="flex items-center gap-2.5 group">
           <ArrowLeft weight="fill" className="w-4 h-4 text-neutral-500 group-hover:text-neutral-900 transition-colors" />
           <span className="text-xl font-normal text-neutral-900 tracking-tight">
-            Brainwave
+            Brainway
           </span>
         </Link>
         <motion.button
@@ -617,7 +617,7 @@ function TransformPage() {
               </h1>
               <p className="mt-4 text-sm md:text-base text-neutral-600 leading-relaxed max-w-lg">
                 Upload a video built for general audiences. Select the accessibility profiles that match your
-                learners. Brainwave applies every transformation automatically.
+                learners. Brainway applies every transformation automatically.
               </p>
 
               <div className="mt-8 flex items-center gap-2">

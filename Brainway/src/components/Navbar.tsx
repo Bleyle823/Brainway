@@ -29,7 +29,7 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
       <nav className="w-full z-20 flex items-center justify-between px-4 md:px-8 py-4 md:py-6">
         <Link to="/" className="flex items-center gap-3 min-w-0">
           <img
-            src="/brainwave-logo.png"
+            src="/brainway-logo.png"
             alt=""
             width={36}
             height={36}
@@ -82,7 +82,7 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
       <div className="hidden md:block flex-1">
         <Link to="/" className="inline-flex items-center gap-3">
           <img
-            src="/brainwave-logo.png"
+            src="/brainway-logo.png"
             alt=""
             width={36}
             height={36}
@@ -108,7 +108,7 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
 
       <Link to="/" className="md:hidden inline-flex items-center gap-2 min-w-0">
         <img
-          src="/brainwave-logo.png"
+          src="/brainway-logo.png"
           alt=""
           width={32}
           height={32}

@@ -35,7 +35,7 @@ export const Route = createFileRoute("/meet")({
   component: MeetCharactersPage,
   head: () => ({
     meta: [
-      { title: "Join class — Profile-safe Character — Brainwave" },
+      { title: "Join class — Profile-safe Character — Brainway" },
       {
         name: "description",
         content:
@@ -68,7 +68,7 @@ function MeetCharactersPage() {
   const [avatarKind, setAvatarKind] = useState<"preset" | "custom">("preset");
   const [presetAvatarId, setPresetAvatarId] = useState("music-superstar");
   const [customAvatarId, setCustomAvatarId] = useState("");
-  const [botDisplayName, setBotDisplayName] = useState("Brainwave Character");
+  const [botDisplayName, setBotDisplayName] = useState("Brainway Character");
 
   const {
     stage,
@@ -127,7 +127,7 @@ function MeetCharactersPage() {
           meetingPassword: meetingPassword.trim() || undefined,
           avatarType: avatarKind,
           avatarId: avatarIdForRecall,
-          botName: botDisplayName.trim() || "Brainwave Character",
+          botName: botDisplayName.trim() || "Brainway Character",
           profiles: Array.from(selectedProfiles),
           config,
           targetLanguage,
@@ -235,7 +235,7 @@ function MeetCharactersPage() {
                   <code className="text-[11px]">recall-bridge</code> Node service (see{" "}
                   <code className="text-[11px]">recall-bridge/README.md</code>), set{" "}
                   <code className="text-[11px]">PUBLIC_URL</code> there, then add{" "}
-                  <code className="text-[11px]">RECALL_BRIDGE_URL</code> to Brainwave. Until then, use{" "}
+                  <code className="text-[11px]">RECALL_BRIDGE_URL</code> to Brainway. Until then, use{" "}
                   <strong className="font-medium">Preview in browser</strong> below.
                 </div>
               )}

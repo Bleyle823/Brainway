@@ -16,7 +16,7 @@ export default function Footer() {
           <div>
             <Link to="/" className="inline-flex items-center gap-3">
               <img
-                src="/brainwave-logo.png"
+                src="/brainway-logo.png"
                 alt=""
                 width={40}
                 height={40}

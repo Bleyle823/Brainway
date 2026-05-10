@@ -164,7 +164,7 @@ export default function TransformResult({
         {outputUrl ? (
           <motion.a
             href={outputUrl}
-            download={`brainwave-${videoName}`}
+            download={`brainway-${videoName}`}
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ scale: 1.02 }}

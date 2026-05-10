@@ -24,7 +24,7 @@ export const Route = createFileRoute("/create")({
   component: CreatePage,
   head: () => ({
     meta: [
-      { title: "Create Educational Video — Brainwave" },
+      { title: "Create Educational Video — Brainway" },
       {
         name: "description",
         content:

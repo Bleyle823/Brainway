@@ -25,7 +25,7 @@ export const Route = createFileRoute("/community")({
   component: CommunityLibraryPage,
   head: () => ({
     meta: [
-      { title: "Community library — Brainwave" },
+      { title: "Community library — Brainway" },
       {
         name: "description",
         content:

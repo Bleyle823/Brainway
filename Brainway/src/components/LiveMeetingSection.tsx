@@ -19,7 +19,7 @@ export default function LiveMeetingSection() {
             Join the meeting—with a learner-safe Character beside instruction
           </h2>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-neutral-600">
-            Students join Zoom or Google Meet as they always do. The host launches Brainwave, picks ADHD-aware, autism-safe, dyslexia-friendly, or sensory-calmed behavior presets, then pipes the avatar into the call using a virtual camera (for example OBS). Everyone sees the same class; the companion follows the predefined profile rules—not generic small talk.
+            Students join Zoom or Google Meet as they always do. The host launches Brainway, picks ADHD-aware, autism-safe, dyslexia-friendly, or sensory-calmed behavior presets, then pipes the avatar into the call using a virtual camera (for example OBS). Everyone sees the same class; the companion follows the predefined profile rules—not generic small talk.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-3">
             <Link
@@ -71,7 +71,7 @@ export default function LiveMeetingSection() {
                 3
               </span>
               <span>
-                Start the session—Runway Characters runs with Brainwave personality rules whenever your org uses a custom avatar (
+                Start the session—Runway Characters runs with Brainway personality rules whenever your org uses a custom avatar (
                 <code className="text-[11px] text-neutral-800">RUNWAY_CHARACTER_AVATAR_TYPE=custom</code>).
               </span>
             </li>

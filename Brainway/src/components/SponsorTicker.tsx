@@ -84,7 +84,7 @@ export default function SponsorTicker() {
     <section className="w-full border-y border-neutral-200 bg-white py-6 md:py-8">
       <div className="mx-auto max-w-6xl px-4 md:px-8">
         <p className="mb-5 max-w-xl text-sm text-neutral-600 md:mb-0 md:hidden">
-          Brainwave collaborates with research-led organisations to ship sensory-aware learning video at scale.
+          Brainway collaborates with research-led organisations to ship sensory-aware learning video at scale.
         </p>
       </div>
       <div className="relative overflow-hidden">
