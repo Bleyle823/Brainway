@@ -9,22 +9,23 @@ import tsconfigPaths from "vite-tsconfig-paths";
 // Cloudflare plugin is build-only — including it in dev causes SSR virtual-module
 // resolution conflicts with TanStack Start.
 const isBuild = process.env.NODE_ENV === "production" || process.argv.includes("build");
-/** Vercel sets this during CI/build — use Nitro (TanStack Start hosting guide) instead of CF Worker bundle. */
-const isVercel = process.env.VERCEL === "1";
+/** BRAINWAY_VERCEL_DEPLOY is set by vercel.json buildCommand (works even if system env vars are disabled). VERCEL=1 requires “System environment variables” enabled in Vercel project settings. */
+const useVercelNitro =
+  process.env.BRAINWAY_VERCEL_DEPLOY === "1" || process.env.VERCEL === "1";
 
 export default defineConfig({
   plugins: [
     tanstackStart({
       server: { entry: "server" },
     }),
-    ...(isBuild && isVercel ? [nitro({ preset: "vercel" })] : []),
+    ...(isBuild && useVercelNitro ? [nitro({ preset: "vercel" })] : []),
     react(),
     tsconfigPaths({
       // Only scan the project source — avoids spamming warnings from bun's global cache
       root: process.cwd(),
     }),
     tailwindcss(),
-    ...(isBuild && !isVercel ? [cloudflare()] : []),
+    ...(isBuild && !useVercelNitro ? [cloudflare()] : []),
   ],
   optimizeDeps: {
     // These packages use TanStack Start's virtual modules (#tanstack-router-entry etc.)
