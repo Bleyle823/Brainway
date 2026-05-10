@@ -56,6 +56,17 @@ Heavy lifting (video tasks, Characters realtime sessions, uploads) is delegated 
 
 ## Repository layout
 
+**Brainwave** (this web app) lives at the **repository root** (`src/`, `public/`, `package.json`, Vite and Wrangler config). Optional agent plugins and extra docs live alongside it:
+
+| Path | Role |
+|------|------|
+| **Root** (`src/`, `public/`, config files) | Brainwave TanStack Start application |
+| [`docs/`](docs/README.md) | Documentation index and future guides |
+| [`plugins/runway/`](plugins/runway/README.md) | Hermes (Python) Runway plugin |
+| [`plugins/plugin-runway/`](plugins/plugin-runway/README.md) | ElizaOS Runway plugin (`@elizaos/core`) |
+
+### Application source (root)
+
 | Path | Role |
 |------|------|
 | [`src/routes/`](src/routes/) | File-based routes (`createFileRoute`); each file is a top-level segment like `/live`, `/transform` |
