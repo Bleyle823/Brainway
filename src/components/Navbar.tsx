@@ -18,11 +18,74 @@ const menu = [
   { label: "Pricing", hasDropdown: true },
 ];
 
-export default function Navbar() {
+type NavbarProps = {
+  variant?: "marketing" | "default";
+};
+
+export default function Navbar({ variant = "default" }: NavbarProps) {
+  if (variant === "marketing") {
+    return (
+      <nav className="w-full z-20 flex items-center justify-between px-4 md:px-8 py-4 md:py-6">
+        <Link to="/" className="flex items-center gap-3 min-w-0">
+          <img
+            src="/brainwave-logo.png"
+            alt=""
+            width={36}
+            height={36}
+            className="h-9 w-9 shrink-0 object-contain"
+          />
+          <span className="text-xl font-normal text-neutral-900 tracking-tight truncate">Brainwave</span>
+        </Link>
+
+        <ul className="hidden lg:flex items-center gap-8 text-neutral-900 text-sm">
+          <li className="hover:opacity-80 transition">
+            <a href="#product" className="hover:opacity-90">About</a>
+          </li>
+          <li className="hover:opacity-80 transition">
+            <Link to="/create" className="hover:opacity-90">Create</Link>
+          </li>
+          <li className="hover:opacity-80 transition">
+            <Link to="/community" className="hover:opacity-90">Community</Link>
+          </li>
+          <li className="hover:opacity-80 transition">
+            <Link to="/live" className="hover:opacity-90">Live</Link>
+          </li>
+          <li className="hover:opacity-80 transition">
+            <Link to="/transform" className="hover:opacity-90">Transform</Link>
+          </li>
+        </ul>
+
+        <div className="flex items-center gap-3">
+          <Link to="/create" className="text-sm text-neutral-900 hover:underline hidden md:inline">
+            Log in
+          </Link>
+          <Link
+            to="/create"
+            className="inline-flex items-center bg-neutral-950 text-white rounded-full pl-2 pr-5 md:pr-6 py-2 gap-2 md:gap-3 hover:bg-neutral-800 transition-colors"
+          >
+            <span className="bg-white/15 rounded-full p-2 flex items-center justify-center">
+              <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white" weight="fill" />
+            </span>
+            <span className="text-xs md:text-sm font-normal">Request a call</span>
+          </Link>
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 md:px-8 py-4 md:py-6">
       <div className="hidden md:block flex-1">
-        <span className="text-xl font-normal text-neutral-900 tracking-tight">Brainwave</span>
+        <Link to="/" className="inline-flex items-center gap-3">
+          <img
+            src="/brainwave-logo.png"
+            alt=""
+            width={36}
+            height={36}
+            className="h-9 w-9 object-contain"
+          />
+          <span className="text-xl font-normal text-neutral-900 tracking-tight">Brainwave</span>
+        </Link>
       </div>
 
       <ul className="hidden md:flex items-center gap-6 lg:gap-8 bg-white/40 backdrop-blur-md border border-neutral-300/60 rounded-full px-6 py-2.5 text-sm text-neutral-800">
@@ -39,7 +102,16 @@ export default function Navbar() {
         ))}
       </ul>
 
-      <div className="md:hidden text-xl font-normal text-neutral-900 tracking-tight">Brainwave</div>
+      <Link to="/" className="md:hidden inline-flex items-center gap-2 min-w-0">
+        <img
+          src="/brainwave-logo.png"
+          alt=""
+          width={32}
+          height={32}
+          className="h-8 w-8 shrink-0 object-contain"
+        />
+        <span className="text-xl font-normal text-neutral-900 tracking-tight truncate">Brainwave</span>
+      </Link>
 
       <div className="flex-1 flex justify-end items-center gap-2 md:gap-3">
         <Link to="/create">

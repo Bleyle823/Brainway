@@ -4,8 +4,8 @@ import { ArrowUpRight, MagicWand, VideoCamera, Sparkle } from "@phosphor-icons/r
 
 export default function CTA() {
   return (
-    <section className="w-full px-2 md:px-3 pb-2 md:pb-3 bg-neutral-200">
-      <div className="relative w-full rounded-3xl md:rounded-4xl overflow-hidden bg-gradient-to-br from-neutral-100 via-neutral-300/80 to-neutral-400 border border-neutral-400/70 px-6 md:px-16 py-20 md:py-32">
+    <section className="w-full px-2 md:px-3 pb-2 md:pb-3 bg-[#f4f4f5]">
+      <div className="relative w-full rounded-3xl md:rounded-4xl overflow-hidden bg-neutral-200 border border-neutral-300 px-6 md:px-16 py-20 md:py-32">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

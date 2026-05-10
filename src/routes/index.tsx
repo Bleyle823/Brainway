@@ -1,6 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { VideoCamera } from "@phosphor-icons/react";
+import { createFileRoute } from "@tanstack/react-router";
 import Hero from "@/components/Hero";
+import SponsorTicker from "@/components/SponsorTicker";
+import FeatureHighlights from "@/components/FeatureHighlights";
+import UseModesSection from "@/components/UseModesSection";
 import Problem from "@/components/Problem";
 import HowItWorks from "@/components/HowItWorks";
 import Audience from "@/components/Audience";
@@ -25,21 +27,9 @@ function Index() {
   return (
     <main>
       <Hero />
-      <div className="w-full bg-neutral-200 px-4 py-6 flex flex-wrap justify-center gap-3">
-        <Link
-          to="/community"
-          className="inline-flex items-center gap-2 text-sm text-neutral-950 bg-white/80 border border-neutral-400/70 rounded-full px-5 py-2.5 hover:bg-white transition-colors shadow-sm"
-        >
-          Browse & share neurodivergent-safe material
-        </Link>
-        <Link
-          to="/live"
-          className="inline-flex items-center gap-2 text-sm text-neutral-950 bg-white/80 border border-neutral-400/70 rounded-full px-5 py-2.5 hover:bg-white transition-colors shadow-sm"
-        >
-          <VideoCamera className="w-4 h-4" weight="fill" />
-          Start a live learner-safe Character session
-        </Link>
-      </div>
+      <SponsorTicker />
+      <FeatureHighlights />
+      <UseModesSection />
       <Problem />
       <HowItWorks />
       <Audience />

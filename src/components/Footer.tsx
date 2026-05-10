@@ -9,7 +9,7 @@ const cols = [
 
 export default function Footer() {
   return (
-    <footer className="w-full px-2 md:px-3 pb-2 md:pb-3 bg-neutral-200">
+    <footer className="w-full px-2 md:px-3 pb-2 md:pb-3 bg-white">
       <div className="w-full rounded-3xl md:rounded-4xl bg-neutral-950 text-neutral-100 px-6 md:px-12 py-14 md:py-20 border border-neutral-700">
         <div className="grid lg:grid-cols-[1.5fr_3fr] gap-12 lg:gap-16">
           <div>

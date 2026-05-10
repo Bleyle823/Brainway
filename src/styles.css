@@ -1,21 +1,60 @@
-@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400&display=swap");
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
 
 @theme {
-  --font-instrument: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-geist: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist);
+  --color-bw-sky: oklch(0.88 0.06 232);
+  --color-bw-sky-strong: oklch(0.78 0.09 232);
+  --color-bw-lavender: oklch(0.92 0.04 290);
+  --color-bw-indigo: oklch(0.22 0.06 270);
+  --color-bw-lime: oklch(0.91 0.18 125);
+  --color-bw-purple-start: oklch(0.38 0.18 290);
+  --color-bw-purple-end: oklch(0.32 0.12 260);
+}
+
+@keyframes bw-marquee-rtl {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 :root {
-  font-family: var(--font-instrument);
+  font-family: var(--font-geist);
   color: #0a0a0a;
 }
 
 body {
   margin: 0;
   overflow-x: hidden;
-  background-color: #d6d6d6;
+  background-color: #f4f4f5;
   -webkit-font-smoothing: antialiased;
+}
+
+.bw-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: bw-marquee-rtl 42s linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bw-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
 }
