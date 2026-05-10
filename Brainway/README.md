@@ -1,4 +1,4 @@
-# Brainwave
+# Brainway
 
 Brainwave is a web application for turning learning materials into calm, sensory-aware experiences. It targets neurodivergent learners (for example ADHD and autistic audiences) with toned-down motion, profile-driven accessibility settings, and tooling built around [Runway](https://runwayml.com/) video and Characters APIs.
 
