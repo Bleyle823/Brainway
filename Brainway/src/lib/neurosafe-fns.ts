@@ -40,7 +40,7 @@ const seedMaterials: NeurosafeMaterial[] = [
     title: "Classroom sensory checklist",
     description:
       "Questions educators can ask before sharing video or slides: lighting, pacing, captions, and clear opt-out paths.",
-    contributorDisplay: "Brainwave",
+    contributorDisplay: "Brainway",
     createdAt: "2025-01-15T12:00:00.000Z",
     kind: "text",
     textBody:
@@ -51,7 +51,7 @@ const seedMaterials: NeurosafeMaterial[] = [
     title: "Low-contrast color pairs for slides",
     description:
       "Reference combinations that reduce glare and visual noise for many autistic and migraine-prone learners.",
-    contributorDisplay: "Brainwave",
+    contributorDisplay: "Brainway",
     createdAt: "2025-01-20T12:00:00.000Z",
     kind: "text",
     textBody:

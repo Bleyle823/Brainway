@@ -45,7 +45,7 @@ export const Route = createFileRoute("/safe-images")({
   component: SafeImagesPage,
   head: () => ({
     meta: [
-      { title: "Safe Images — Brainwave" },
+      { title: "Safe Images — Brainway" },
       {
         name: "description",
         content:

@@ -48,7 +48,7 @@ export const Route = createFileRoute("/safe-audio")({
   component: SafeAudioPage,
   head: () => ({
     meta: [
-      { title: "Safe Audio — Brainwave" },
+      { title: "Safe Audio — Brainway" },
       {
         name: "description",
         content:

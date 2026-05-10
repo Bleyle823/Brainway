@@ -1,6 +1,6 @@
 # Brainway
 
-Brainwave is a web application for turning learning materials into calm, sensory-aware experiences. It targets neurodivergent learners (for example ADHD and autistic audiences) with toned-down motion, profile-driven accessibility settings, and tooling built around [Runway](https://runwayml.com/) video and Characters APIs.
+Brainway is a web application for turning learning materials into calm, sensory-aware experiences. It targets neurodivergent learners (for example ADHD and autistic audiences) with toned-down motion, profile-driven accessibility settings, and tooling built around [Runway](https://runwayml.com/) video and Characters APIs.
 
 The product blends a marketing landing page, an AI-assisted **transform** studio, an **educator create** flow for short educational clips, optional **live** avatar sessions, and a **community** surface for sharing neurodivergent-friendly resources.
 
@@ -23,7 +23,7 @@ The product blends a marketing landing page, an AI-assisted **transform** studio
 
 ## Architecture
 
-Brainwave uses [TanStack Start](https://tanstack.com/start) on [Vite](https://vitejs.dev/): React renders on both client and server, and **server functions** (`createServerFn` from `@tanstack/react-start`) run API-style logic alongside the UI without a separate REST service for most features.
+Brainway uses [TanStack Start](https://tanstack.com/start) on [Vite](https://vitejs.dev/): React renders on both client and server, and **server functions** (`createServerFn` from `@tanstack/react-start`) run API-style logic alongside the UI without a separate REST service for most features.
 
 Rough request flow:
 
@@ -56,17 +56,17 @@ Heavy lifting (video tasks, Characters realtime sessions, uploads) is delegated 
 
 ## Repository layout
 
-**Brainwave** (this web app) lives at the **repository root** (`src/`, `public/`, `package.json`, Vite and Wrangler config). Optional agent plugins and extra docs live alongside it:
+**Brainway** (this web app) lives in the **`Brainway/`** directory of the monorepo (`src/`, `public/`, `package.json`, Vite and Wrangler config). Other top-level paths include docs, plugins, and optional services:
 
 | Path | Role |
 |------|------|
-| **Root** (`src/`, `public/`, config files) | Brainwave TanStack Start application |
+| **`Brainway/`** (`src/`, `public/`, config files) | Brainway TanStack Start application |
 | [`docs/`](docs/README.md) | Documentation index and future guides |
 | [`plugins/runway/`](plugins/runway/README.md) | Hermes (Python) Runway plugin |
 | [`plugins/plugin-runway/`](plugins/plugin-runway/README.md) | ElizaOS Runway plugin (`@elizaos/core`) |
-| [`recall-bridge/`](../recall-bridge/README.md) | Node service (Recall.ai + Runway) so a Character can join Zoom / Meet / Teams as a participant — pair with `RECALL_BRIDGE_URL` in Brainwave |
+| [`recall-bridge/`](../recall-bridge/README.md) | Node service (Recall.ai + Runway) so a Character can join Zoom / Meet / Teams as a participant — pair with `RECALL_BRIDGE_URL` in Brainway |
 
-### Application source (root)
+### Application source (`Brainway/`)
 
 | Path | Role |
 |------|------|
@@ -137,7 +137,7 @@ Optional overrides are documented below.
 | `RUNWAYML_BASE_URL` | No | Alias for SDK parity; origin-only values get `/v1` appended automatically. |
 | `RUNWAY_CHARACTER_AVATAR_ID` | No | Default avatar id (`music-superstar` if unset). See [`character-fns.ts`](src/lib/character-fns.ts). |
 | `RUNWAY_CHARACTER_AVATAR_TYPE` | No | `runway-preset` (default) or `custom`. Use **`custom`** together with a custom avatar id when you want multilingual and neurodivergent profile prompts from [`character-personality.ts`](src/lib/character-personality.ts) on `/live` and `/meet` browser preview. Preset avatars accept the session but keep Runway’s baked-in persona. |
-| `RECALL_BRIDGE_URL` | No | **HTTPS origin** (no trailing slash) of the deployed [`recall-bridge`](../recall-bridge/README.md) Node app. Required for **Send Character to Meeting** on `/meet`. Brainwave server functions proxy Runway calls with `RUNWAYML_API_SECRET`; the bridge holds your Recall.ai key and WebSocket video relay. |
+| `RECALL_BRIDGE_URL` | No | **HTTPS origin** (no trailing slash) of the deployed [`recall-bridge`](../recall-bridge/README.md) Node app. Required for **Send Character to Meeting** on `/meet`. Brainway server functions proxy Runway calls with `RUNWAYML_API_SECRET`; the bridge holds your Recall.ai key and WebSocket video relay. |
 
 For Cloudflare production, mirror these as Worker secrets / vars (same names). Local Worker builds may read from `.dev.vars` if you use Wrangler that way. For a quick local template, see [`.env.example`](.env.example).
 
@@ -169,6 +169,16 @@ For Cloudflare production, mirror these as Worker secrets / vars (same names). L
 
 Deploy with [Wrangler](https://developers.cloudflare.com/workers/wrangler/) (`wrangler deploy`) after configuring your account and supplying Runway secrets in the Worker environment. Exact CI/CD hooks are repo-specific — add secrets in the dashboard or your pipeline.
 
+### Vercel
+
+[`vercel.json`](vercel.json) sets **`buildCommand`** to `npm run build` and **`outputDirectory`** to `dist/client`.
+
+1. In the Vercel project settings, set **Root Directory** to **`Brainway`** (this monorepo has no `package.json` at the repo root).
+2. Use the default **Install Command** (`npm install`) or leave blank. **`vite`** is listed under **`dependencies`** so it is installed even when `NODE_ENV=production` (which skips `devDependencies` and caused `vite: command not found`).
+3. Do **not** set the build command to bare `vite build` — use **`npm run build`** so the local `vite` binary is resolved reliably.
+
+TanStack Start’s primary deployment target in this repo is Cloudflare Workers; a static `dist/client` deploy on Vercel serves the client bundle. If you need server functions / SSR on Vercel, follow [TanStack Start deployment docs](https://tanstack.com/start/latest/docs/framework/react/guide/hosting) for the Node/Vercel adapter — `vercel.json` may need further routes/API configuration.
+
 ---
 
 ## Branches and contribution flow
@@ -176,7 +186,7 @@ Deploy with [Wrangler](https://developers.cloudflare.com/workers/wrangler/) (`wr
 Integration work may be staged across stacked branches rather than always on `main`:
 
 1. **`feat_characters`** — Runway Characters live sessions, multilingual and related fixes  
-2. **`chore/brainwave-rebrand`** — Brand and hero asset alignment  
+2. **`chore/brainway-rebrand`** — Brand and hero asset alignment (legacy: `chore/brainwave-rebrand`)  
 3. **`feat/community-neurosafe-library`** — Community neurosafe routes and server helpers  
 4. **`feat/educator-create-transform`** — Create flow, transform pipeline expansion, `@runwayml/sdk`, route tree updates  
 

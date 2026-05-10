@@ -14,7 +14,7 @@ export const Route = createFileRoute("/live")({
   component: LiveCharactersPage,
   head: () => ({
     meta: [
-      { title: "Live Session — Brainwave" },
+      { title: "Live Session — Brainway" },
       {
         name: "description",
         content:

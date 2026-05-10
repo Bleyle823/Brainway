@@ -17,7 +17,7 @@ export default function CTA() {
             Build learning that doesn't burn out the learner.
           </h2>
           <p className="mt-5 text-base md:text-lg text-neutral-700 max-w-xl mx-auto">
-            Get early access to Brainwave and convert your first source into a sensory-safe video this week.
+            Get early access to Brainway and convert your first source into a sensory-safe video this week.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <motion.button

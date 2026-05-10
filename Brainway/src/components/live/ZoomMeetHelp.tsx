@@ -23,7 +23,7 @@ export default function ZoomMeetHelp() {
           <Laptop weight="fill" className="w-5 h-5 shrink-0 mt-0.5 text-neutral-900" />
           <span>
             <strong>OBS Virtual Camera (recommended).</strong> Add a&nbsp;
-            <em>Browser / Window Capture</em> pointing at Brainwave, start{" "}
+            <em>Browser / Window Capture</em> pointing at Brainway, start{" "}
             <strong>OBS Virtual Camera</strong>. In Zoom or Meet, choose{" "}
             <strong>OBS Virtual Camera</strong> as your camera.
           </span>
@@ -50,7 +50,7 @@ export default function ZoomMeetHelp() {
         </summary>
         <p className="mt-3 text-neutral-600 text-xs md:text-[13px] pl-7">
           Browsers cannot register as a native webcam driver for security reasons. OBS, mmhmm,
-          or similar tools bridge Brainwave’s video feed into Zoom/Meet exactly like a DSLR or
+          or similar tools bridge Brainway’s video feed into Zoom/Meet exactly like a DSLR or
           USB camera.
         </p>
       </details>

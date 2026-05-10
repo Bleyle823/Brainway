@@ -49,7 +49,7 @@ export const recallStartMeetingFn = createServerFn({ method: "POST" })
         meetingPassword: data.meetingPassword?.trim() || undefined,
         avatarType: data.avatarType,
         avatarId: data.avatarId,
-        botName: data.botName?.trim() || "Brainwave Character",
+        botName: data.botName?.trim() || "Brainway Character",
         maxDuration: data.maxDuration ?? 300,
         systemPrompt,
       }),

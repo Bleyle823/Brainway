@@ -25,14 +25,14 @@ export default function ImageSafeResult({
   onReset,
 }: Props) {
   const safeName = label.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80) || "illustration";
-  const downloadName = `brainwave-safe-${safeName}.png`;
+  const downloadName = `brainway-safe-${safeName}.png`;
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-normal text-neutral-900">Your neurodivergent-safe image</h2>
         <p className="mt-1 text-sm text-neutral-600">
-          Generated with Brainwave accessibility rules for:{" "}
+          Generated with Brainway accessibility rules for:{" "}
           {Array.from(selectedProfiles)
             .map((id) => PROFILE_LABELS[id])
             .join(", ") || "—"}

@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, service: "brainwave-recall-bridge" });
+  res.json({ ok: true, service: "brainway-recall-bridge" });
 });
 
 const {
@@ -681,7 +681,7 @@ function sleep(ms) {
 }
 
 httpServer.listen(PORT_NUM, () => {
-  console.log(`\n  Brainwave Recall bridge listening on http://127.0.0.1:${PORT_NUM}`);
+  console.log(`\n  Brainway Recall bridge listening on http://127.0.0.1:${PORT_NUM}`);
   const pub = validateRecallPublicUrl(PUBLIC_URL_FROM_ENV);
   if (pub.ok) {
     console.log(`  Recall PUBLIC_URL (https): ${PUBLIC_URL_FROM_ENV}`);

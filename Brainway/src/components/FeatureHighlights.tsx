@@ -18,7 +18,7 @@ export default function FeatureHighlights() {
               Learning that stays gentle on working memory
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-neutral-700 md:text-base">
-              Brainwave routes every source through a sensory scoring loop so pacing, contrast, and audio stay within
+              Brainway routes every source through a sensory scoring loop so pacing, contrast, and audio stay within
               ranges tuned for ADHD and autistic learners — without you hand-editing every cut.
             </p>
             <Link

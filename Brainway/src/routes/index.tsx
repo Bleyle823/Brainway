@@ -15,11 +15,11 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "Brainwave — Sensory-aware video for neurodivergent learners" },
+      { title: "Brainway — Sensory-aware video for neurodivergent learners" },
       {
         name: "description",
         content:
-          "Brainwave turns PDFs, URLs, and voice memos into calm, sensory-safe Gen-4.5 video designed for ADHD and autistic learners.",
+          "Brainway turns PDFs, URLs, and voice memos into calm, sensory-safe Gen-4.5 video designed for ADHD and autistic learners.",
       },
     ],
   }),

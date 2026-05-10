@@ -2,7 +2,7 @@
 
 Node server that joins meetings via [Recall.ai](https://www.recall.ai/) and loads [`public/bot.html`](public/bot.html) as the bot’s camera page. It orchestrates Runway realtime Characters + LiveKit the same way as [Runway Characters Meet](https://github.com/runwayml/runway-characters-meet).
 
-Brainwave’s `/meet` page talks to this app using **`RECALL_BRIDGE_URL`** (HTTPS origin, no trailing slash).
+Brainway’s `/meet` page talks to this app using **`RECALL_BRIDGE_URL`** (HTTPS origin, no trailing slash).
 
 ---
 
@@ -60,7 +60,7 @@ Leave this process running. The first `https://….trycloudflare.com` line updat
 npm run dev
 ```
 
-Then point Brainwave at the bridge:
+Then point Brainway at the bridge:
 
 ```bash
 # Brainway/.env or .env.local — while developing on one PC you may use:
@@ -70,7 +70,7 @@ RECALL_BRIDGE_URL=http://127.0.0.1:3099
 # RECALL_BRIDGE_URL=https://….trycloudflare.com
 ```
 
-Restart Brainwave (`npm run dev`). Use `/meet` → **Send Character to Meeting**.
+Restart Brainway (`npm run dev`). Use `/meet` → **Send Character to Meeting**.
 
 ---
 
@@ -81,7 +81,7 @@ Deploy this folder as a **single Node HTTP service** (Railway, Render, Fly.io, e
 1. Set **`RECALL_API_KEY`**, **`RECALL_REGION`**, **`PUBLIC_URL`** (your service’s public `https://` URL).
 2. Do **not** set `PORT` unless your host requires it; many platforms inject `PORT` automatically.
 3. Start command: `npm start`
-4. Set **`RECALL_BRIDGE_URL`** on Brainwave to that same public origin.
+4. Set **`RECALL_BRIDGE_URL`** on Brainway to that same public origin.
 
 ---
 
@@ -90,6 +90,6 @@ Deploy this folder as a **single Node HTTP service** (Railway, Render, Fly.io, e
 With the server up:
 
 - Open `{PUBLIC_URL}/bot.html` in a browser — you should see a loading shell (missing `?session=` is expected).
-- Logs should show: `Brainwave Recall bridge running on http://localhost:${PORT}` and `Public URL: …`.
+- Logs should show: `Brainway Recall bridge listening on http://127.0.0.1:${PORT}` and the Recall `PUBLIC_URL` lines.
 
 If Recall webhook/video relay fails, double-check **`PUBLIC_URL` matches the tunnel or prod URL exactly** (scheme `https`, no trailing slash). If you see **`request_blocked`**, you likely left **`PUBLIC_URL` as localhost** — fix with **`npm run tunnel`** as above.

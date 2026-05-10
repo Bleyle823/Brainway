@@ -12,7 +12,7 @@ export default function UseModesSection() {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.55 }}
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-neutral-500">Brainwave in practice</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-neutral-500">Brainway in practice</p>
           <h2 className="mt-4 text-4xl font-semibold tracking-tight text-neutral-950 md:text-5xl">Use modes</h2>
           <p className="mt-5 max-w-lg text-base leading-relaxed text-neutral-600">
             One pipeline powers classrooms, therapy platforms, async courses, and live Character sessions — each mode
@@ -36,7 +36,7 @@ export default function UseModesSection() {
               Ship accessible video without re-writing your curriculum
             </h3>
             <p className="mt-4 text-sm leading-relaxed text-neutral-600 md:text-base">
-              Drop in existing PDFs and pacing guides. Brainwave outputs calm explainers, social stories, and chapter
+              Drop in existing PDFs and pacing guides. Brainway outputs calm explainers, social stories, and chapter
               recaps that respect IEP accommodations by default.
             </p>
             <Link
