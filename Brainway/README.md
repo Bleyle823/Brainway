@@ -171,13 +171,12 @@ Deploy with [Wrangler](https://developers.cloudflare.com/workers/wrangler/) (`wr
 
 ### Vercel
 
-[`vercel.json`](vercel.json) sets **`buildCommand`** to `npm run build` and **`outputDirectory`** to `dist/client`.
+Vercel sets **`VERCEL=1`** during builds. [`vite.config.ts`](vite.config.ts) then uses **[Nitro](https://nitro.build/)** with **`preset: "vercel"`** (per [TanStack Start hosting](https://tanstack.com/start/latest/docs/framework/react/guide/hosting)), which emits **`.vercel/output`** for serverless SSR + static assets. Local / CI builds **without** `VERCEL` still use **`@cloudflare/vite-plugin`** for Cloudflare Workers.
+
+[`vercel.json`](vercel.json) sets **`installCommand`** and **`buildCommand`** only — **do not** set **`outputDirectory`** to `dist/client` (that folder has no `index.html`; deploying it caused **`404 NOT_FOUND`**).
 
 1. In the Vercel project settings, set **Root Directory** to **`Brainway`** (this monorepo has no `package.json` at the repo root).
-2. Use the default **Install Command** (`npm install`) or leave blank. **`vite`** is listed under **`dependencies`** so it is installed even when `NODE_ENV=production` (which skips `devDependencies` and caused `vite: command not found`).
-3. Do **not** set the build command to bare `vite build` — use **`npm run build`** so the local `vite` binary is resolved reliably.
-
-TanStack Start’s primary deployment target in this repo is Cloudflare Workers; a static `dist/client` deploy on Vercel serves the client bundle. If you need server functions / SSR on Vercel, follow [TanStack Start deployment docs](https://tanstack.com/start/latest/docs/framework/react/guide/hosting) for the Node/Vercel adapter — `vercel.json` may need further routes/API configuration.
+2. Use **`npm run build`** (default). **`vite`** stays in **`dependencies`** so installs succeed when `NODE_ENV=production` skips `devDependencies`.
 
 ---
 
@@ -200,6 +199,7 @@ Open pull requests targeting the appropriate base (`main` vs the stacked parent)
 - **`/v1/v1/…` Runway URLs** — Use [`getRunwayApiOrigin()`](src/lib/runway-config.ts) for the SDK constructor and [`getRunwayApiBase()`](src/lib/runway-config.ts) for raw REST calls — they are not interchangeable.  
 - **Characters realtime 400 discriminator errors** — Preset vs custom avatar payloads must match Runway API expectations (`runway-preset` + `presetId` vs `custom` + `avatarId`). See [`src/lib/runway-characters.ts`](src/lib/runway-characters.ts) and [`src/lib/character-fns.ts`](src/lib/character-fns.ts).  
 - **`routeTree.gen.ts` mismatch** — Re-run codegen via dev/build; ensure every imported route file exists.
+- **Vercel `404 NOT_FOUND`** — Remove any **Output Directory** override in the Vercel project (must not be `dist/client`). The Nitro build writes **`.vercel/output`**; overriding output pointed at static assets only.
 
 ---
 
