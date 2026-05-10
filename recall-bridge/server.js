@@ -18,22 +18,72 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.static("public"));
 
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true, service: "brainwave-recall-bridge" });
+});
+
 const {
   RECALL_API_KEY,
   RECALL_REGION = "us-west-2",
   PORT = "3000",
 } = process.env;
 
-const PUBLIC_URL =
-  process.env.PUBLIC_URL ||
+const PORT_NUM = parseInt(String(PORT), 10) || 3000;
+
+/** HTTPS origin Recall uses to load bot.html and open WS (never localhost). */
+const PUBLIC_URL_FROM_ENV = (
+  process.env.PUBLIC_URL?.trim() ||
   (process.env.RAILWAY_PUBLIC_DOMAIN
     ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-    : `http://localhost:${PORT}`);
+    : "")
+).replace(/\/+$/, "");
 
-const WS_PUBLIC_URL = PUBLIC_URL.replace(/^https/, "wss").replace(
-  /^http/,
-  "ws"
-);
+/** Recall rejects localhost / non-public URLs in bot payloads (403 request_blocked). */
+function validateRecallPublicUrl(urlStr) {
+  const trimmed = urlStr?.trim();
+  if (!trimmed) {
+    return {
+      ok: false,
+      message:
+        "PUBLIC_URL is not set. Recall requires a public https URL (not localhost). In recall-bridge run `npm run tunnel`, copy the https://….trycloudflare.com URL into PUBLIC_URL in .env, then restart this server.",
+    };
+  }
+  let u;
+  try {
+    u = new URL(trimmed);
+  } catch {
+    return { ok: false, message: "PUBLIC_URL must be a valid URL." };
+  }
+  if (u.protocol.toLowerCase() !== "https:") {
+    return {
+      ok: false,
+      message:
+        "PUBLIC_URL must start with https:// so Recall can reach bot.html and WebSockets over the internet.",
+    };
+  }
+  const host = u.hostname.toLowerCase();
+  const blocked = new Set(["localhost", "127.0.0.1", "0.0.0.0", "[::1]", "::1"]);
+  if (blocked.has(host) || host.endsWith(".localhost")) {
+    return {
+      ok: false,
+      message:
+        "Recall blocks localhost URLs (403 request_blocked). Use `npm run tunnel`, put that https URL in PUBLIC_URL, restart recall-bridge.",
+    };
+  }
+  if (/^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)/.test(host)) {
+    return {
+      ok: false,
+      message:
+        "PUBLIC_URL uses a private IP range; Recall expects a publicly reachable HTTPS hostname (use a tunnel URL).",
+    };
+  }
+  return { ok: true };
+}
+
+function toWssOrigin(httpsPublicUrl) {
+  const u = new URL(httpsPublicUrl.trim());
+  return `wss://${u.host}`;
+}
 
 const RECALL_BASE = `https://${RECALL_REGION}.recall.ai/api/v1`;
 
@@ -96,8 +146,16 @@ async function recallFetch(path, { method = "GET", body } = {}) {
   return data;
 }
 
-async function createRecallBot(meetingUrl, botName, botPageUrl, sessionId, meetingPassword) {
+async function createRecallBot(
+  meetingUrl,
+  botName,
+  botPageUrl,
+  sessionId,
+  meetingPassword,
+  httpsPublicBase,
+) {
   const displayName = botName || "Runway Character";
+  const wsRelayUrl = `${toWssOrigin(httpsPublicBase)}/ws/recall-video/${sessionId}`;
   const body = {
       meeting_url: meetingUrl,
       bot_name: displayName,
@@ -124,7 +182,7 @@ async function createRecallBot(meetingUrl, botName, botPageUrl, sessionId, meeti
         realtime_endpoints: [
           {
             type: "websocket",
-            url: `${WS_PUBLIC_URL}/ws/recall-video/${sessionId}`,
+            url: wsRelayUrl,
             events: [
               "video_separate_png.data",
               "participant_events.speech_on",
@@ -198,6 +256,14 @@ app.post("/api/start", (req, res) => {
       ? { type: "runway-preset", presetId: avatarId }
       : { type: "custom", avatarId };
 
+  const pub = validateRecallPublicUrl(PUBLIC_URL_FROM_ENV);
+  if (!pub.ok) {
+    return res.status(503).json({
+      error: pub.message,
+      code: "RECALL_PUBLIC_URL_INVALID",
+    });
+  }
+
   const id = randomUUID();
   const session = {
     id,
@@ -268,6 +334,14 @@ app.post("/api/join", async (req, res) => {
   if (!livekitUrl || !livekitToken)
     return res.status(400).json({ error: "livekitUrl and livekitToken required" });
 
+  const pubJoin = validateRecallPublicUrl(PUBLIC_URL_FROM_ENV);
+  if (!pubJoin.ok) {
+    return res.status(503).json({
+      error: pubJoin.message,
+      code: "RECALL_PUBLIC_URL_INVALID",
+    });
+  }
+
   const id = randomUUID();
   const session = {
     id,
@@ -290,10 +364,17 @@ app.post("/api/join", async (req, res) => {
 
   (async () => {
     try {
-      const botPageUrl = `${PUBLIC_URL}/bot.html?session=${id}`;
+      const botPageUrl = `${PUBLIC_URL_FROM_ENV}/bot.html?session=${id}`;
       log(`Creating Recall bot → ${meetingUrl}`);
-      log(`Video relay: ${WS_PUBLIC_URL}/ws/recall-video/${id}`);
-      const bot = await createRecallBot(meetingUrl, botName, botPageUrl, id, meetingPassword);
+      log(`Video relay: ${toWssOrigin(PUBLIC_URL_FROM_ENV)}/ws/recall-video/${id}`);
+      const bot = await createRecallBot(
+        meetingUrl,
+        botName,
+        botPageUrl,
+        id,
+        meetingPassword,
+        PUBLIC_URL_FROM_ENV,
+      );
       session.recallBotId = bot.id;
       log(`Recall bot created: ${bot.id}`);
       session.status = "active";
@@ -532,15 +613,16 @@ async function runSessionPipeline(
     log(`LiveKit room: ${creds.roomName}`);
 
     session.status = "bot_joining";
-    const botPageUrl = `${PUBLIC_URL}/bot.html?session=${session.id}`;
+    const botPageUrl = `${PUBLIC_URL_FROM_ENV}/bot.html?session=${session.id}`;
     log(`Creating Recall bot → ${meetingUrl}`);
-    log(`Video relay: ${WS_PUBLIC_URL}/ws/recall-video/${session.id}`);
+    log(`Video relay: ${toWssOrigin(PUBLIC_URL_FROM_ENV)}/ws/recall-video/${session.id}`);
     const bot = await createRecallBot(
       meetingUrl,
       botName,
       botPageUrl,
       session.id,
-      meetingPassword
+      meetingPassword,
+      PUBLIC_URL_FROM_ENV,
     );
     session.recallBotId = bot.id;
     log(`Recall bot created: ${bot.id}`);
@@ -598,9 +680,14 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-httpServer.listen(parseInt(PORT), () => {
-  console.log(`\n  Brainwave Recall bridge running on http://localhost:${PORT}`);
-  console.log(`  Public URL: ${PUBLIC_URL}`);
-  console.log(`  WebSocket URL: ${WS_PUBLIC_URL}`);
+httpServer.listen(PORT_NUM, () => {
+  console.log(`\n  Brainwave Recall bridge listening on http://127.0.0.1:${PORT_NUM}`);
+  const pub = validateRecallPublicUrl(PUBLIC_URL_FROM_ENV);
+  if (pub.ok) {
+    console.log(`  Recall PUBLIC_URL (https): ${PUBLIC_URL_FROM_ENV}`);
+    console.log(`  Recall WS base: ${toWssOrigin(PUBLIC_URL_FROM_ENV)}`);
+  } else {
+    console.warn(`  Recall PUBLIC_URL: not usable — ${pub.message}`);
+  }
   console.log(`  Recall region: ${RECALL_REGION}\n`);
 });
