@@ -1,0 +1,117 @@
+# Runway ML Model Information
+# Used by the plugin for model selection and parameter validation
+
+video_models:
+  gen4.5:
+    name: "Gen-4.5"
+    description: "Latest video generation model supporting text-to-video and image-to-video"
+    max_duration: 10
+    min_duration: 2
+    supported_ratios:
+      - "1280:720"  # landscape
+      - "720:1280"  # portrait
+      - "1104:832"  # landscape wide
+      - "960:960"   # square
+      - "832:1104"  # portrait wide
+      - "1584:672"  # ultra-wide
+    supports_image_input: true
+    supports_text_only: true
+
+image_models:
+  gen4_image:
+    name: "Gen-4 Image"
+    description: "High-quality image generation with reference support"
+    max_references: 5
+    supported_ratios:
+      - "1920:1080"
+      - "1280:720" 
+      - "1024:1024"
+      - "1080:1080"
+      - "1168:880"
+      - "1360:768"
+    supports_references: true
+    supports_tags: true
+
+character_models:
+  gwm1_avatars:
+    name: "GWM-1 Avatars"
+    description: "Real-time character sessions with preset and custom avatars"
+    preset_avatars:
+      - music-superstar
+      - casual-male
+      - business-woman
+    supports_custom: true
+    supports_personality: true # only for custom avatars
+    max_session_duration: 3600 # 1 hour
+
+audio_models:
+  eleven_multilingual_v2:
+    name: "ElevenLabs Multilingual TTS v2"
+    description: "Text-to-speech in multiple languages"
+    type: "tts"
+    languages: ["en", "es", "fr", "de", "it", "pt", "pl", "tr", "ru", "nl", "cs", "ar", "zh", "ja", "hi", "ko"]
+  
+  eleven_text_to_sound_v2:
+    name: "ElevenLabs Text-to-Sound v2" 
+    description: "Generate sound effects from text descriptions"
+    type: "sound"
+    max_duration: 22
+    min_duration: 1
+  
+  eleven_voice_dubbing:
+    name: "ElevenLabs Voice Dubbing"
+    description: "Dub audio to different languages"
+    type: "dubbing"
+    supported_languages: ["es", "fr", "de", "it", "pt", "pl", "tr", "ru", "nl", "cs", "ar", "zh", "ja", "hi", "ko"]
+  
+  eleven_multilingual_sts_v2:
+    name: "ElevenLabs Speech-to-Speech v2"
+    description: "Convert speech with different voices"
+    type: "speech_conversion"
+    voice_presets:
+      - "English_CalmMale"
+      - "English_WarmFemale"
+      - "Spanish_Narrator"
+      - "French_Elegant"
+
+transform_models:
+  gen4_aleph:
+    name: "Gen-4 Aleph"
+    description: "Video-to-video transformation with style prompts"
+    type: "video_to_video"
+    supported_ratios:
+      - "1280:720"
+      - "720:1280"
+      - "960:960"
+    supports_style_prompts: true
+  
+  act_two:
+    name: "Act Two"
+    description: "Character performance transfer to any character"
+    type: "character_performance" 
+    supported_ratios:
+      - "1280:720"
+      - "720:1280" 
+      - "960:960"
+      - "1104:832"
+      - "832:1104"
+    requires_character: true
+    requires_reference: true
+
+# Common aspect ratios and their use cases
+aspect_ratios:
+  "1280:720":
+    name: "HD Landscape"
+    use_cases: ["YouTube", "presentations", "web content"]
+  "720:1280": 
+    name: "HD Portrait"
+    use_cases: ["mobile video", "social stories", "TikTok"]
+  "1920:1080":
+    name: "Full HD"
+    use_cases: ["high-res images", "desktop wallpapers"]
+  "960:960":
+    name: "Square"
+    use_cases: ["Instagram posts", "profile images"]
+  "1104:832":
+    name: "Wide Landscape"
+    use_cases: ["cinematic content", "banner images"]

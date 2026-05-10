@@ -1,0 +1,23 @@
+name: runway
+version: 1.0.0
+description: Runway ML - AI video, image, and audio generation
+author: AI Assistant
+provides_tools:
+  - generate_video
+  - generate_image
+  - start_character_session
+  - generate_audio
+  - transform_media
+provides_hooks:
+  - post_tool_call
+requires_env:
+  - name: RUNWAYML_API_SECRET
+    description: "Org API secret from Runway Developer Portal"
+    url: "https://dev.runwayml.com"
+    secret: true
+  - name: RUNWAY_CHARACTER_AVATAR_ID
+    description: "Default avatar ID for character sessions (optional)"
+    secret: false
+  - name: RUNWAY_CHARACTER_AVATAR_TYPE
+    description: "Avatar type: runway-preset or custom (optional)"
+    secret: false
