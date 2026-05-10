@@ -1,0 +1,51 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Brainway",
+  "description": "Documentation for the Brainway monorepo — Brainwave web app, docs, and Runway plugins.",
+  "colors": {
+    "primary": "#171717",
+    "light": "#525252",
+    "dark": "#0a0a0a"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "docs/introduction",
+              "docs/repository-layout"
+            ]
+          },
+          {
+            "group": "Applications",
+            "pages": ["docs/brainwave-app"]
+          },
+          {
+            "group": "Plugins",
+            "pages": ["docs/plugins-overview"]
+          }
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/Bleyle823/Brainway"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/Bleyle823/Brainway"
+    }
+  }
+}

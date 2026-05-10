@@ -2,6 +2,8 @@
 
 This folder holds project documentation that is separate from the in-repo plugin READMEs.
 
+**Mintlify:** Site config is [`docs.json`](../docs.json) at the **repository root** (next to this folder). MDX pages live here (`docs/*.mdx`). In the Mintlify dashboard, set the path to the directory containing `docs.json` to **`.`** (repo root) or leave the default root. Assistant instructions: [`.mintlify/Assistant.md`](../.mintlify/Assistant.md). **Cursor MCP:** [`.cursor/mcp.json`](../.cursor/mcp.json).
+
 ## Layout
 
 | Path | Description |
