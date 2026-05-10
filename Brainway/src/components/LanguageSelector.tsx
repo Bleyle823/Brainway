@@ -1,20 +1,32 @@
 import { useState, useRef, useEffect } from "react";
 import { Globe, CaretDown, Check } from "@phosphor-icons/react";
-import { LANGUAGES, DEFAULT_LANGUAGE_CODE, type Language } from "@/lib/languages";
+import { LANGUAGES, DEFAULT_LANGUAGE_CODE } from "@/lib/languages";
+
+export type SelectableLanguage = {
+  code: string;
+  name: string;
+  nativeName: string;
+  rtl?: boolean;
+};
 
 interface Props {
   value: string;
   onChange: (code: string) => void;
   label?: string;
+  /** Override list (e.g. Runway voice-dubbing locales). Defaults to `LANGUAGES`. */
+  languages?: SelectableLanguage[];
 }
 
-export default function LanguageSelector({ value, onChange, label }: Props) {
+export default function LanguageSelector({ value, onChange, label, languages }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const selected: Language =
-    LANGUAGES.find((l) => l.code === value) ??
-    LANGUAGES.find((l) => l.code === DEFAULT_LANGUAGE_CODE)!;
+  const list = languages ?? LANGUAGES;
+
+  const selected =
+    list.find((l) => l.code === value) ??
+    list.find((l) => l.code === DEFAULT_LANGUAGE_CODE) ??
+    list[0]!;
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -55,7 +67,7 @@ export default function LanguageSelector({ value, onChange, label }: Props) {
             className="absolute left-0 top-full mt-2 z-50 min-w-[220px] max-h-72 overflow-y-auto rounded-2xl bg-white border border-neutral-200 shadow-lg py-1"
             role="listbox"
           >
-            {LANGUAGES.map((lang) => {
+            {list.map((lang) => {
               const isSelected = lang.code === value;
               return (
                 <button

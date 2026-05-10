@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   MagicWand,
   VideoCamera,
+  UsersThree,
   Sparkle,
   Books,
   Image as ImageIcon,
@@ -46,6 +47,9 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
           </li>
           <li className="hover:opacity-80 transition">
             <Link to="/community" className="hover:opacity-90">Community</Link>
+          </li>
+          <li className="hover:opacity-80 transition">
+            <Link to="/meet" className="hover:opacity-90">Meet</Link>
           </li>
           <li className="hover:opacity-80 transition">
             <Link to="/live" className="hover:opacity-90">Live</Link>
@@ -132,6 +136,16 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
           >
             <Books className="w-4 h-4" weight="duotone" />
             Safe library
+          </motion.span>
+        </Link>
+        <Link to="/meet">
+          <motion.span
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="hidden md:flex items-center gap-1.5 text-sm text-neutral-700 hover:text-neutral-900 transition-colors cursor-pointer"
+          >
+            <UsersThree className="w-4 h-4" weight="fill" />
+            Meet
           </motion.span>
         </Link>
         <Link to="/live">

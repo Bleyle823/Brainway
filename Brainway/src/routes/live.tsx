@@ -1,16 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, ArrowSquareOut, CircleNotch } from "@phosphor-icons/react";
-import { AvatarSession, type SessionCredentials } from "@runwayml/avatars-react";
+import { AvatarSession } from "@runwayml/avatars-react";
 import "@runwayml/avatars-react/styles.css";
 
-import ProfileSelector, { type ProfileId } from "@/components/transform/ProfileSelector";
-import TransformConfig, { type AllConfig } from "@/components/transform/TransformConfig";
+import ProfileSelector from "@/components/transform/ProfileSelector";
+import TransformConfig from "@/components/transform/TransformConfig";
 import SessionView from "@/components/live/SessionView";
 import LanguageSelector from "@/components/LanguageSelector";
-import { DEFAULT_LANGUAGE_CODE } from "@/lib/languages";
-import { createCharacterSessionFn } from "@/lib/character-fns";
+import { useLiveCharacterSession } from "@/components/live/useLiveCharacterSession";
 
 export const Route = createFileRoute("/live")({
   component: LiveCharactersPage,
@@ -26,70 +24,25 @@ export const Route = createFileRoute("/live")({
   }),
 });
 
-type Stage = "setup" | "connecting" | "session" | "ended";
-
 function LiveCharactersPage() {
-  const [stage, setStage] = useState<Stage>("setup");
-  const [selectedProfiles, setSelectedProfiles] = useState<Set<ProfileId>>(new Set());
-  const [config, setConfig] = useState<AllConfig>({} as AllConfig);
-  const [credentials, setCredentials] = useState<SessionCredentials | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [clientReady, setClientReady] = useState(false);
-  const [targetLanguage, setTargetLanguage] = useState(DEFAULT_LANGUAGE_CODE);
-
-  useEffect(() => {
-    setClientReady(true);
-  }, []);
-
-  const toggleProfile = useCallback((id: ProfileId) => {
-    setSelectedProfiles((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
-
-  const updateConfig = useCallback(
-    (profileId: ProfileId, key: string, value: number | boolean | string) => {
-      setConfig((prev) => ({
-        ...prev,
-        [profileId]: { ...(prev[profileId] ?? {}), [key]: value },
-      }));
-    },
-    [],
-  );
-
-  const resetAll = useCallback(() => {
-    setStage("setup");
-    setSelectedProfiles(new Set());
-    setConfig({} as AllConfig);
-    setCredentials(null);
-    setError(null);
-    setTargetLanguage(DEFAULT_LANGUAGE_CODE);
-  }, []);
-
-  const handleStartSession = useCallback(async () => {
-    if (selectedProfiles.size === 0) return;
-    setError(null);
-    setStage("connecting");
-    try {
-      const creds = await createCharacterSessionFn({
-        data: {
-          profiles: Array.from(selectedProfiles),
-          config,
-          targetLanguage,
-        },
-      });
-      setCredentials(creds);
-      setStage("session");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to create session.");
-      setStage("setup");
-    }
-  }, [selectedProfiles, config]);
-
-  const canStart = selectedProfiles.size > 0;
+  const {
+    stage,
+    setStage,
+    selectedProfiles,
+    toggleProfile,
+    config,
+    updateConfig,
+    credentials,
+    setCredentials,
+    error,
+    setError,
+    clientReady,
+    targetLanguage,
+    setTargetLanguage,
+    resetAll,
+    handleStartSession,
+    canStart,
+  } = useLiveCharacterSession();
 
   return (
     <div className="min-h-screen bg-neutral-200 pb-24">

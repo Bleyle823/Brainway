@@ -22,12 +22,15 @@ import {
 import {
   pickSafeVoicePreset,
   buildSafeSoundEffectPrompt,
+  deriveVoiceDubbingAccessibilityOptions,
   type SoundscapeId,
 } from "./safe-audio-prompts";
 import type { ProfileId } from "@/components/transform/ProfileSelector";
 import type { AllConfig } from "@/components/transform/TransformConfig";
 import { getRunwayApiSecret } from "./runway-config";
-import { getLanguage } from "./languages";
+import {
+  isRunwayVoiceDubbingLang,
+} from "./runway-voice-dubbing-languages";
 
 function getApiKey(): string {
   return getRunwayApiSecret();
@@ -278,16 +281,23 @@ export const startLocalizedLectureFn = createServerFn({ method: "POST" })
       throw new Error("Audio URI must be a valid HTTPS URL, runway:// URI, or data URI");
     }
 
-    // Validate language code exists
-    const lang = getLanguage(data.targetLanguage);
-    if (!lang) {
-      throw new Error(`Unsupported target language: ${data.targetLanguage}`);
+    if (!isRunwayVoiceDubbingLang(data.targetLanguage)) {
+      throw new Error(
+        `Voice dubbing does not support "${data.targetLanguage}". Choose a target language from the dubbing list.`,
+      );
     }
+
+    const accessibility = deriveVoiceDubbingAccessibilityOptions(
+      data.profiles,
+      data.config,
+    );
 
     const task = await startVoiceDubbing(key, {
       model: "eleven_voice_dubbing",
       audioUri: data.audioUri,
       targetLang: data.targetLanguage,
+      disableVoiceCloning: accessibility.disableVoiceCloning,
+      dropBackgroundAudio: accessibility.dropBackgroundAudio,
     });
 
     return { taskId: task.id };

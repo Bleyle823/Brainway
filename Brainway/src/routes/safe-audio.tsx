@@ -25,6 +25,13 @@ import {
 } from "@/lib/transform-fns";
 import type { SoundscapeId } from "@/lib/safe-audio-prompts";
 import {
+  deriveVoiceDubbingAccessibilityOptions,
+} from "@/lib/safe-audio-prompts";
+import {
+  VOICE_DUBBING_LANGUAGES,
+  isRunwayVoiceDubbingLang,
+} from "@/lib/runway-voice-dubbing-languages";
+import {
   fileToDataUri,
   mapProgressToStep,
   MAX_DATAURI_BYTES,
@@ -109,6 +116,13 @@ function SafeAudioPage() {
       setAudioInputMode(audioModeSearch);
     }
   }, [audioModeSearch]);
+
+  useEffect(() => {
+    if (audioInputMode !== "dub") return;
+    if (!isRunwayVoiceDubbingLang(targetLanguage)) {
+      setTargetLanguage(DEFAULT_LANGUAGE_CODE);
+    }
+  }, [audioInputMode, targetLanguage]);
 
   const scheduleNextPoll = useCallback((id: string) => {
     if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
@@ -705,6 +719,17 @@ function SafeAudioPage() {
                       className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm"
                     />
                   )}
+                  <div className="pt-2">
+                    <LanguageSelector
+                      languages={VOICE_DUBBING_LANGUAGES}
+                      value={targetLanguage}
+                      onChange={setTargetLanguage}
+                      label="Dub into language"
+                    />
+                    <p className="mt-1.5 text-xs text-neutral-500">
+                      Any of Runway ElevenLabs dubbing locales. You can adjust again in step 3.
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -830,8 +855,45 @@ function SafeAudioPage() {
                 config={config}
                 onChange={updateConfig}
               />
+              {audioInputMode === "dub" && selectedProfiles.has("sensory") && (
+                <div className="mt-6 rounded-xl border border-neutral-200 bg-neutral-50/90 px-4 py-3 space-y-2">
+                  <p className="text-xs uppercase tracking-[0.15em] text-neutral-500">
+                    Sensory → voice dubbing (Runway API)
+                  </p>
+                  <p className="text-xs text-neutral-700 leading-snug">
+                    {(() => {
+                      const o = deriveVoiceDubbingAccessibilityOptions(
+                        Array.from(selectedProfiles),
+                        config,
+                      );
+                      return (
+                        <>
+                          Colour saturation (sensory slider) below ~32% turns on{" "}
+                          <strong>generic dub voice</strong> (disable voice cloning). Background
+                          ambience cap at or below ~20% strips <strong>background audio</strong> in
+                          the dubbed file. Current: cloning{" "}
+                          {o.disableVoiceCloning ? "off" : "on"}, beds{" "}
+                          {o.dropBackgroundAudio ? "stripped" : "kept"}.
+                        </>
+                      );
+                    })()}
+                  </p>
+                </div>
+              )}
+              {audioInputMode === "soundscape" && selectedProfiles.has("sensory") && (
+                <div className="mt-6 rounded-xl border border-neutral-200 bg-neutral-50/90 px-4 py-3">
+                  <p className="text-xs text-neutral-700 leading-snug">
+                    <strong>Sensory soundscapes:</strong> saturation, max audio peak, and background
+                    ambience cap in the Sensory profile are written into the text prompt for
+                    eleven_text_to_sound — lower saturation and quieter caps steer calmer output.
+                  </p>
+                </div>
+              )}
               <div className="mt-6">
                 <LanguageSelector
+                  languages={
+                    audioInputMode === "dub" ? VOICE_DUBBING_LANGUAGES : undefined
+                  }
                   value={targetLanguage}
                   onChange={setTargetLanguage}
                   label={

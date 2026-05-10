@@ -1,4 +1,5 @@
 import RunwayML from "@runwayml/sdk";
+import type { VoiceDubbingCreateParams } from "@runwayml/sdk/resources/voice-dubbing.js";
 
 import {
   getRunwayApiBase,
@@ -392,6 +393,11 @@ export interface VoiceDubbingParams {
   model: "eleven_voice_dubbing";
   audioUri: string;
   targetLang: string;
+  /** Generic dub voice vs cloned timbre — driven by learner profiles server-side when unset here. */
+  disableVoiceCloning?: boolean;
+  /** Strip beds / ambience from dubbed output — useful for sensory-safe caps. */
+  dropBackgroundAudio?: boolean;
+  numSpeakers?: number;
 }
 
 /**
@@ -410,7 +416,10 @@ export async function startVoiceDubbing(
   const created = await client.voiceDubbing.create({
     model: "eleven_voice_dubbing",
     audioUri: params.audioUri,
-    targetLang: params.targetLang,
+    targetLang: params.targetLang as VoiceDubbingCreateParams["targetLang"],
+    disableVoiceCloning: params.disableVoiceCloning,
+    dropBackgroundAudio: params.dropBackgroundAudio,
+    numSpeakers: params.numSpeakers,
   });
 
   return { id: created.id };

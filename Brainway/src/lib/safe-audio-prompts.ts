@@ -97,12 +97,21 @@ export function buildSafeSoundEffectPrompt(
   // Sensory profile adjustments
   if (profiles.includes("sensory")) {
     const saturation = (config.sensory?.saturation as number | undefined) ?? 35;
-    const intensity = Math.max(20, Math.min(50, saturation)); // Clamp to safe range
-    parts.push(`Very gentle intensity approximately ${intensity}% of full dynamic range`);
+    const ambienceCap = (config.sensory?.ambienceCap as number | undefined) ?? 15;
+    const audioPeak = (config.sensory?.audioPeak as number | undefined) ?? -14;
+
+    const intensity = Math.max(15, Math.min(55, saturation));
+    parts.push(`Very gentle subjective intensity (~${Math.round(intensity)}% of typical full-range soundscape)`);
+    parts.push(
+      `Background layer must stay subtle: learner-safe ambience budget around ${Math.round(ambienceCap)}% versus foreground texture`,
+    );
+    parts.push(
+      `Conservative limiting around ${audioPeak} dB headroom equivalent — no sharp peaks or sudden loud moments`,
+    );
     parts.push("Extra soft attack and release on any elements");
   }
-  
-  // Autism profile adjustments  
+
+  // Autism profile adjustments
   if (profiles.includes("autism")) {
     const bgMotion = (config.autism?.backgroundMotion as string | undefined) ?? "Static";
     if (bgMotion === "Static") {
@@ -128,4 +137,29 @@ export function buildSafeSoundEffectPrompt(
   
   // Ensure prompt isn't too long for the API
   return prompt.length > 1000 ? prompt.slice(0, 997) + "..." : prompt;
+}
+
+/**
+ * Maps TransformConfig sensory sliders (saturation / ambience cap) and selected
+ * profiles to Runway `eleven_voice_dubbing` flags.
+ */
+export function deriveVoiceDubbingAccessibilityOptions(
+  profiles: ProfileId[],
+  config: AllConfig,
+): {
+  disableVoiceCloning: boolean;
+  dropBackgroundAudio: boolean;
+} {
+  if (!profiles.includes("sensory")) {
+    return { disableVoiceCloning: false, dropBackgroundAudio: false };
+  }
+
+  const s = config.sensory ?? {};
+  const saturation = typeof s.saturation === "number" ? s.saturation : 35;
+  const ambienceCap = typeof s.ambienceCap === "number" ? s.ambienceCap : 15;
+
+  const disableVoiceCloning = saturation <= 32;
+  const dropBackgroundAudio = ambienceCap <= 20;
+
+  return { disableVoiceCloning, dropBackgroundAudio };
 }

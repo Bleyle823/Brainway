@@ -64,6 +64,7 @@ Heavy lifting (video tasks, Characters realtime sessions, uploads) is delegated 
 | [`docs/`](docs/README.md) | Documentation index and future guides |
 | [`plugins/runway/`](plugins/runway/README.md) | Hermes (Python) Runway plugin |
 | [`plugins/plugin-runway/`](plugins/plugin-runway/README.md) | ElizaOS Runway plugin (`@elizaos/core`) |
+| [`recall-bridge/`](../recall-bridge/README.md) | Node service (Recall.ai + Runway) so a Character can join Zoom / Meet / Teams as a participant — pair with `RECALL_BRIDGE_URL` in Brainwave |
 
 ### Application source (root)
 
@@ -86,10 +87,11 @@ The following reflects the fuller application surface (see [Branches](#branches-
 
 | Route | Purpose |
 |-------|---------|
-| `/` | Landing: hero, problem, how-it-works, audience, CTA, footer |
+| `/` | Landing: hero, sponsor ticker, feature highlights, **live meeting** CTA ([`LiveMeetingSection`](src/components/LiveMeetingSection.tsx)), use modes, problem, how-it-works, audience, CTA, footer |
 | `/transform` | Studio for transforming existing media (profiles, uploads, Runway-backed tasks — see [`src/lib/transform-fns.ts`](src/lib/transform-fns.ts)) |
 | `/create` | Educator-oriented Gen-4.5 text/image-to-video flow ([`src/routes/create.tsx`](src/routes/create.tsx)) |
 | `/live` | Runway **Characters** realtime session UI ([`@runwayml/avatars-react`](src/routes/live.tsx)) |
+| `/meet` | Guided flow: learner profiles → **paste Zoom / Meet / Teams URL** → pick preset or custom Character → **Send Character to Meeting** via Recall.ai ([`recall-meet-fns.ts`](src/lib/recall-meet-fns.ts)) when [`recall-bridge/`](../recall-bridge/README.md) is deployed and `RECALL_BRIDGE_URL` is set; optional **Preview in browser** uses the same Characters session as `/live` ([`meet.tsx`](src/routes/meet.tsx)). Query: `?profiles=adhd,sensory`. Full personality PATCH + prompts apply to **custom** avatars on the bridge path (presets log a note). |
 | `/community` | Community “neurosafe” library UX backed by server functions ([`src/lib/neurosafe-fns.ts`](src/lib/neurosafe-fns.ts); in-memory seeded data unless you extend it) |
 
 Neurodivergent-facing options (profiles, pacing, language for live sessions, etc.) are threaded through [`ProfileSelector`](src/components/transform/ProfileSelector.tsx), [`TransformConfig`](src/components/transform/TransformConfig.tsx), and Character personality builders in [`src/lib/character-personality.ts`](src/lib/character-personality.ts).
@@ -134,9 +136,10 @@ Optional overrides are documented below.
 | `RUNWAYML_API_BASE_URL` | No | API base ending in `/v1`, e.g. `https://api.dev.runwayml.com/v1`. |
 | `RUNWAYML_BASE_URL` | No | Alias for SDK parity; origin-only values get `/v1` appended automatically. |
 | `RUNWAY_CHARACTER_AVATAR_ID` | No | Default avatar id (`music-superstar` if unset). See [`character-fns.ts`](src/lib/character-fns.ts). |
-| `RUNWAY_CHARACTER_AVATAR_TYPE` | No | `runway-preset` (default) or `custom` — controls discriminator shape sent to realtime session creation. |
+| `RUNWAY_CHARACTER_AVATAR_TYPE` | No | `runway-preset` (default) or `custom`. Use **`custom`** together with a custom avatar id when you want multilingual and neurodivergent profile prompts from [`character-personality.ts`](src/lib/character-personality.ts) on `/live` and `/meet` browser preview. Preset avatars accept the session but keep Runway’s baked-in persona. |
+| `RECALL_BRIDGE_URL` | No | **HTTPS origin** (no trailing slash) of the deployed [`recall-bridge`](../recall-bridge/README.md) Node app. Required for **Send Character to Meeting** on `/meet`. Brainwave server functions proxy Runway calls with `RUNWAYML_API_SECRET`; the bridge holds your Recall.ai key and WebSocket video relay. |
 
-For Cloudflare production, mirror these as Worker secrets / vars (same names). Local Worker builds may read from `.dev.vars` if you use Wrangler that way.
+For Cloudflare production, mirror these as Worker secrets / vars (same names). Local Worker builds may read from `.dev.vars` if you use Wrangler that way. For a quick local template, see [`.env.example`](.env.example).
 
 ---
 

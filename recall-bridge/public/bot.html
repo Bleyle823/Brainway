@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280, height=720">
+<title>Runway Character Meet</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1280px;
+    height: 720px;
+    overflow: hidden;
+    background: #0a0a0a;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  #avatar-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: none;
+  }
+  #status-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    gap: 20px;
+  }
+  #status-overlay.hidden { display: none; }
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 2.5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #status-text {
+    font-size: 42px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 56px;
+    letter-spacing: -0.5px;
+    color: #fff;
+  }
+  #error-text {
+    color: #ff6b6b;
+    font-size: 22px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 30px;
+    max-width: 600px;
+    text-align: center;
+  }
+  /* Hidden canvas for compositing meeting video to send to avatar */
+  #meeting-canvas { display: none; }
+</style>
+</head>
+<body>
+
+<div id="status-overlay">
+  <div class="spinner"></div>
+  <div id="status-text">Initializing...</div>
+  <div id="error-text"></div>
+</div>
+
+<video id="avatar-video" autoplay playsinline muted></video>
+<canvas id="meeting-canvas" width="640" height="360"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/livekit-client@2/dist/livekit-client.umd.js"></script>
+<script>
+const { Room, RoomEvent, Track } = LivekitClient;
+
+// Track which sids we've already tried to force-subscribe, to avoid log spam
+const forcedSubscribeSids = new Set();
+
+const params = new URLSearchParams(window.location.search);
+const sessionId = params.get("session");
+
+const statusOverlay = document.getElementById("status-overlay");
+const statusText = document.getElementById("status-text");
+const errorText = document.getElementById("error-text");
+const videoEl = document.getElementById("avatar-video");
+const meetingCanvas = document.getElementById("meeting-canvas");
+const ctx = meetingCanvas.getContext("2d");
+
+function setStatus(msg) {
+  statusText.textContent = msg;
+  console.log("[bot]", msg);
+}
+
+function setError(msg) {
+  errorText.textContent = msg;
+  console.error("[bot]", msg);
+}
+
+async function fetchCreds(retries = 30) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/creds`);
+      if (res.ok) return res.json();
+      if (res.status === 425) {
+        await new Promise((r) => setTimeout(r, 2000));
+        continue;
+      }
+      throw new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Meeting video: receive participant frames and composite onto canvas
+// ---------------------------------------------------------------------------
+
+const participantFrames = new Map(); // participantId → { img, name }
+const avatarAudioElements = []; // track audio elements so we can mute/unmute
+const attachedTrackSids = new Set(); // avoid duplicate track attachments
+let drawScheduled = false;
+
+function scheduleDrawMeetingView() {
+  if (drawScheduled) return;
+  drawScheduled = true;
+  setTimeout(() => {
+    drawScheduled = false;
+    drawMeetingView();
+  }, 500);
+}
+
+function setupVideoRelay() {
+  const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const wsUrl = `${wsProtocol}//${window.location.host}/ws/video-relay/${sessionId}`;
+  console.log("[bot] Connecting to video relay:", wsUrl);
+
+  const ws = new WebSocket(wsUrl);
+
+  ws.onmessage = (event) => {
+    try {
+      const frame = JSON.parse(event.data);
+
+      if (frame.type === "control" && frame.action === "mute") {
+        console.log("[bot] Mute:", frame.muted);
+        avatarAudioElements.forEach((el) => { el.muted = frame.muted; });
+        return;
+      }
+
+      if (!frame.buffer) return;
+
+      const img = new Image();
+      img.onload = () => {
+        participantFrames.set(frame.participantId, {
+          img,
+          name: frame.participantName || `Participant ${frame.participantId}`,
+        });
+        scheduleDrawMeetingView();
+      };
+      img.src = `data:image/png;base64,${frame.buffer}`;
+    } catch {
+      // ignore malformed frames
+    }
+  };
+
+  ws.onclose = () => {
+    console.log("[bot] Video relay disconnected, reconnecting in 3s...");
+    setTimeout(setupVideoRelay, 3000);
+  };
+
+  ws.onerror = () => ws.close();
+}
+
+function drawMeetingView() {
+  const participants = Array.from(participantFrames.values());
+  if (participants.length === 0) return;
+
+  const W = meetingCanvas.width;
+  const H = meetingCanvas.height;
+
+  ctx.fillStyle = "#1a1a1a";
+  ctx.fillRect(0, 0, W, H);
+
+  const count = participants.length;
+  const cols = count <= 1 ? 1 : count <= 4 ? 2 : 3;
+  const rows = Math.ceil(count / cols);
+  const cellW = Math.floor(W / cols);
+  const cellH = Math.floor(H / rows);
+
+  participants.forEach((p, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = col * cellW;
+    const y = row * cellH;
+
+    // Draw participant frame scaled to fit cell, centered
+    const scale = Math.min(cellW / p.img.width, cellH / p.img.height);
+    const dw = p.img.width * scale;
+    const dh = p.img.height * scale;
+    const dx = x + (cellW - dw) / 2;
+    const dy = y + (cellH - dh) / 2;
+
+    ctx.drawImage(p.img, dx, dy, dw, dh);
+
+    // Name label
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillRect(x, y + cellH - 22, cellW, 22);
+    ctx.fillStyle = "#fff";
+    ctx.font = "13px system-ui, sans-serif";
+    ctx.fillText(p.name, x + 6, y + cellH - 6);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+async function start() {
+  if (!sessionId) {
+    setError("Missing ?session= parameter");
+    return;
+  }
+
+  // 1. Get LiveKit credentials
+  setStatus("Fetching connection details...");
+  const creds = await fetchCreds();
+
+  // 2. Connect to LiveKit room
+  setStatus("Connecting to character...");
+  const room = new Room({
+    adaptiveStream: false,
+    dynacast: false,
+  });
+
+  function attachTrackIfNeeded(track) {
+    if (!track?.sid || attachedTrackSids.has(track.sid)) return;
+    attachedTrackSids.add(track.sid);
+
+    if (track.kind === Track.Kind.Video) {
+      track.attach(videoEl);
+      videoEl.style.display = "block";
+      statusOverlay.classList.add("hidden");
+      // Some hosted bot browsers need an explicit play() even after attach().
+      videoEl.play().catch(() => {});
+      console.log("[bot] Avatar video track attached:", track.sid);
+    }
+
+    if (track.kind === Track.Kind.Audio) {
+      const audioEl = track.attach();
+      audioEl.volume = 1.0;
+      document.body.appendChild(audioEl);
+      avatarAudioElements.push(audioEl);
+      console.log("[bot] Avatar audio track attached:", track.sid);
+    }
+  }
+
+  // Force-subscribe to a publication and attach if its track is already there.
+  // autoSubscribe can silently fail on Recall's hosted browser (esp. on Teams,
+  // which has a longer admission window before the page connects), leaving
+  // publications stuck in "published but not subscribed". This is the core
+  // bug behind the Teams "chat sent but no avatar video" symptom.
+  function ensureSubscribedAndAttach(publication) {
+    if (!publication) return;
+    if (publication.track) attachTrackIfNeeded(publication.track);
+    if (publication.isSubscribed) return;
+    if (publication.trackSid && forcedSubscribeSids.has(publication.trackSid)) return;
+    if (publication.trackSid) forcedSubscribeSids.add(publication.trackSid);
+    try {
+      publication.setSubscribed?.(true);
+      console.log("[bot] Force-subscribed publication:", publication.trackSid, publication.kind);
+    } catch (err) {
+      console.warn("[bot] setSubscribed failed:", err?.message);
+    }
+  }
+
+  function scanAllPublications(reason) {
+    for (const participant of room.remoteParticipants.values()) {
+      for (const publication of participant.trackPublications.values()) {
+        ensureSubscribedAndAttach(publication);
+      }
+    }
+    if (reason) console.log("[bot] Publication scan:", reason);
+  }
+
+  room.on(RoomEvent.TrackSubscribed, (track) => {
+    attachTrackIfNeeded(track);
+  });
+
+  room.on(RoomEvent.TrackPublished, (publication) => {
+    ensureSubscribedAndAttach(publication);
+  });
+
+  room.on(RoomEvent.ParticipantConnected, (participant) => {
+    console.log("[bot] Remote participant connected:", participant.identity);
+    for (const publication of participant.trackPublications.values()) {
+      ensureSubscribedAndAttach(publication);
+    }
+  });
+
+  room.on(RoomEvent.TrackUnsubscribed, (track) => {
+    track.detach().forEach((el) => el.remove());
+  });
+
+  room.on(RoomEvent.Disconnected, () => {
+    setStatus("Session ended — leaving meeting...");
+    statusOverlay.classList.remove("hidden");
+    videoEl.style.display = "none";
+    // Runway session expired — tell the server to pull the bot out of the meeting
+    console.log("[bot] LiveKit disconnected, requesting bot leave...");
+    fetch(`/api/sessions/${sessionId}/stop`, { method: "POST" })
+      .then((r) => console.log("[bot] Stop response:", r.status))
+      .catch((e) => {
+        console.error("[bot] Stop request failed, retrying...", e);
+        setTimeout(() => {
+          fetch(`/api/sessions/${sessionId}/stop`, { method: "POST" }).catch(() => {});
+        }, 3000);
+      });
+  });
+
+  await room.connect(creds.url, creds.token);
+  setStatus("Connected — waiting for character video...");
+
+  // Defensive backfill: force-subscribe everything already in the room and
+  // attach any tracks that are ready. autoSubscribe can fail silently on
+  // Recall's hosted browser, so we don't trust isSubscribed alone.
+  scanAllPublications("post-connect backfill");
+
+  // Periodic safety net for the first 30 s after connect: if subscription or
+  // track delivery is racy (common on Teams where bot admission timing
+  // shuffles when LiveKit publishes vs when we connect), keep retrying. We
+  // stop early as soon as the avatar video is attached.
+  let scanAttempts = 0;
+  const scanTimer = setInterval(() => {
+    scanAttempts++;
+    scanAllPublications(`periodic #${scanAttempts}`);
+    const videoAttached = videoEl.style.display === "block";
+    if (videoAttached || scanAttempts >= 15) {
+      clearInterval(scanTimer);
+      if (!videoAttached) {
+        // Surface this on the bot's camera frame so it's visible in the
+        // meeting / Recall recording when the bug recurs.
+        setStatus("No character video after 30s — check LiveKit/subscription");
+      }
+    }
+  }, 2000);
+
+  // 3. Capture meeting audio and publish to LiveKit
+  try {
+    const meetingStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      },
+    });
+    const audioTrack = meetingStream.getAudioTracks()[0];
+    await room.localParticipant.publishTrack(audioTrack, {
+      name: "meeting-audio",
+    });
+    console.log("[bot] Meeting audio published to LiveKit");
+  } catch (err) {
+    console.warn("[bot] Could not capture meeting audio:", err.message);
+  }
+
+  // 4. Publish meeting video canvas as a video track to LiveKit
+  //    The canvas is updated with participant frames from the video relay
+  try {
+    const canvasStream = meetingCanvas.captureStream(2); // match Recall's 2fps PNG rate
+    const videoTrack = canvasStream.getVideoTracks()[0];
+    await room.localParticipant.publishTrack(videoTrack, {
+      name: "meeting-video",
+    });
+    console.log("[bot] Meeting video canvas published to LiveKit");
+  } catch (err) {
+    console.warn("[bot] Could not publish meeting video:", err.message);
+  }
+
+  // 5. Connect to video relay to start receiving participant frames
+  setupVideoRelay();
+}
+
+start().catch((err) => {
+  setStatus("Failed to start");
+  setError(err.message);
+});
+</script>
+
+</body>
+</html>
