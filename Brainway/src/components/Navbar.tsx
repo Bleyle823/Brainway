@@ -35,7 +35,7 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
             height={36}
             className="h-9 w-9 shrink-0 object-contain"
           />
-          <span className="text-xl font-normal text-neutral-900 tracking-tight truncate">Brainwave</span>
+          <span className="text-xl font-normal text-neutral-900 tracking-tight truncate">Brainway</span>
         </Link>
 
         <ul className="hidden lg:flex items-center gap-8 text-neutral-900 text-sm">
@@ -88,7 +88,7 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
             height={36}
             className="h-9 w-9 object-contain"
           />
-          <span className="text-xl font-normal text-neutral-900 tracking-tight">Brainwave</span>
+          <span className="text-xl font-normal text-neutral-900 tracking-tight">Brainway</span>
         </Link>
       </div>
 
@@ -114,7 +114,7 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
           height={32}
           className="h-8 w-8 shrink-0 object-contain"
         />
-        <span className="text-xl font-normal text-neutral-900 tracking-tight truncate">Brainwave</span>
+        <span className="text-xl font-normal text-neutral-900 tracking-tight truncate">Brainway</span>
       </Link>
 
       <div className="flex-1 flex justify-end items-center gap-2 md:gap-3">

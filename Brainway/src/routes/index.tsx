@@ -8,6 +8,7 @@ import Problem from "@/components/Problem";
 import HowItWorks from "@/components/HowItWorks";
 import Audience from "@/components/Audience";
 import CTA from "@/components/CTA";
+import BrandKitCallout from "@/components/BrandKitCallout";
 import Footer from "@/components/Footer";
 
 export const Route = createFileRoute("/")({
@@ -36,6 +37,7 @@ function Index() {
       <HowItWorks />
       <Audience />
       <CTA />
+      <BrandKitCallout />
       <Footer />
     </main>
   );
