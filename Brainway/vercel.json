@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm install",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/client"
+  "buildCommand": "cross-env BRAINWAY_VERCEL_DEPLOY=1 npm run build"
 }

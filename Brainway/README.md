@@ -171,13 +171,13 @@ Deploy with [Wrangler](https://developers.cloudflare.com/workers/wrangler/) (`wr
 
 ### Vercel
 
-[`vercel.json`](vercel.json) sets **`buildCommand`** to `npm run build` and **`outputDirectory`** to `dist/client`.
+[`vite.config.ts`](vite.config.ts) enables **[Nitro](https://nitro.build/)** **`preset: "vercel"`** when **`BRAINWAY_VERCEL_DEPLOY=1`** (set by [`vercel.json`](vercel.json) via **`cross-env`**) or when **`VERCEL=1`** (needs **[Enable access to System Environment Variables](https://vercel.com/docs/projects/environment-variables/system-environment-variables)** if you rely on that alone). Nitro emits **`.vercel/output`** for SSR + static assets.
 
-1. In the Vercel project settings, set **Root Directory** to **`Brainway`** (this monorepo has no `package.json` at the repo root).
-2. Use the default **Install Command** (`npm install`) or leave blank. **`vite`** is listed under **`dependencies`** so it is installed even when `NODE_ENV=production` (which skips `devDependencies` and caused `vite: command not found`).
-3. Do **not** set the build command to bare `vite build` — use **`npm run build`** so the local `vite` binary is resolved reliably.
+[`vercel.json`](vercel.json) sets **`installCommand`** and **`buildCommand`** — **do not** set **`outputDirectory`** to **`dist/client`** (no root **`index.html`** there).
 
-TanStack Start’s primary deployment target in this repo is Cloudflare Workers; a static `dist/client` deploy on Vercel serves the client bundle. If you need server functions / SSR on Vercel, follow [TanStack Start deployment docs](https://tanstack.com/start/latest/docs/framework/react/guide/hosting) for the Node/Vercel adapter — `vercel.json` may need further routes/API configuration.
+1. Set **Root Directory** to **`Brainway`**.
+2. Leave **Output Directory** empty (dashboard overrides **`vercel.json`**).
+3. Optional: enable **system environment variables** so **`VERCEL=1`** exists during builds (`BRAINWAY_VERCEL_DEPLOY` in **`buildCommand`** already forces Nitro when system vars are off).
 
 ---
 
@@ -200,6 +200,7 @@ Open pull requests targeting the appropriate base (`main` vs the stacked parent)
 - **`/v1/v1/…` Runway URLs** — Use [`getRunwayApiOrigin()`](src/lib/runway-config.ts) for the SDK constructor and [`getRunwayApiBase()`](src/lib/runway-config.ts) for raw REST calls — they are not interchangeable.  
 - **Characters realtime 400 discriminator errors** — Preset vs custom avatar payloads must match Runway API expectations (`runway-preset` + `presetId` vs `custom` + `avatarId`). See [`src/lib/runway-characters.ts`](src/lib/runway-characters.ts) and [`src/lib/character-fns.ts`](src/lib/character-fns.ts).  
 - **`routeTree.gen.ts` mismatch** — Re-run codegen via dev/build; ensure every imported route file exists.
+- **Vercel `404 NOT_FOUND`** — Clear **Output Directory** (must not be **`dist/client`**). Confirm deploy logs show Nitro (`Generated .vercel/output`). **`buildCommand`** forces **`BRAINWAY_VERCEL_DEPLOY=1`**. If you dropped **`cross-env`** or overridden **`buildCommand`**, Nitro may not run.
 
 ---
 
