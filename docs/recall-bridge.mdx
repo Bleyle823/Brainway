@@ -1,0 +1,92 @@
+---
+title: Recall bridge
+description: Node service for Recall.ai meetings, Runway Characters, and WebSocket relay.
+---
+
+**`recall-bridge/`** is a **separate Node (Express) application** that:
+
+1. Accepts **start/stop/mute/status** commands from Brainway.
+2. Creates **Recall.ai** bots pointed at **`{PUBLIC_URL}/bot.html`**.
+3. Provisions **Runway realtime_sessions** for **Characters** using credentials forwarded from Brainway.
+4. Relays **WebSocket** video/audio between Recall’s bot page and clients.
+
+It is adapted from the [Runway Characters Meet](https://github.com/runwayml/runway-characters-meet) pattern and extended for Brainway’s **HTTPS + header** contract.
+
+## Why it exists
+
+- **Recall** requires a **public `https://`** page for the bot “camera” — not raw localhost.
+- **Secrets separation**: Recall API key stays on the bridge; Runway org secret is supplied **per request** from Brainway via headers (so you can rotate Runway keys in Brainway without redeploying Recall configuration for every org—see operational notes in your threat model).
+
+## Environment
+
+See [Environment variables](/docs/environment-variables). The bridge **validates** `PUBLIC_URL` on startup paths and returns actionable errors when Recall would reject the URL (localhost, `http`, private IP ranges).
+
+## Local development: tunnel first
+
+Recall’s servers must fetch **`bot.html`** from the internet.
+
+1. From `recall-bridge/`, run **`npm run tunnel`** (Cloudflare Quick Tunnel). The repo can bundle **`cloudflared`** under **`.tools/`** on Windows or use PATH.
+2. When a `trycloudflare.com` URL appears, the script may **write `PUBLIC_URL`** into `.env`. **Restart** **`npm run dev`** so the bridge reloads env.
+3. Keep tunnel + bridge processes running while testing.
+
+Then set Brainway **`RECALL_BRIDGE_URL`** to the **same HTTPS origin** Recall uses (see [Development workflow](/docs/development-workflow)).
+
+## HTTP API (bridge)
+
+Express serves static files from **`public/`** (including **`bot.html`**) and mounts JSON routes:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/api/health` | `{ ok: true, service: "brainway-recall-bridge" }` |
+| `GET` | `/api/avatars` | Lists **READY** Runway avatars (`GET /v1/avatars`) using **`X-Runway-Key`** + **`X-Runway-Base-Url`** from the request |
+| `POST` | `/api/start` | Start Recall bot + Runway session pipeline (Brainway uses this) |
+| `GET` | `/api/sessions/:id` | Session status, logs, Runway/Recall ids |
+| `GET` | `/api/sessions/:id/creds` | Credentials for bot page / debugging |
+| `POST` | `/api/sessions/:id/mute` | Toggle mute |
+| `POST` | `/api/sessions/:id/stop` | Tear down bot/session |
+| `POST` | `/api/join` | **External join**: caller supplies existing **LiveKit** `livekitUrl` + `livekitToken`; bridge only spins up Recall bot → `bot.html` (no Runway session creation in this path) |
+
+CORS: responses allow browser origins and expose headers **`X-Runway-Key`**, **`X-Runway-Base-Url`** for preflight from Brainway’s dev origin.
+
+### WebSocket relay
+
+The HTTP server upgrades WebSockets for Recall video ingress and bot-page relay (see `server.js`):
+
+- **`/ws/recall-video/:sessionId`** — Recall publishes frames into the bridge.
+- **`/wss/...`** is implied by **`wss://{PUBLIC_URL host}`** in logs; the path **`/ws/video-relay/:sessionId`** is used by the bot page to **receive** relayed media.
+
+Exact pathname strings are defined in `server.js`—treat this as architectural context when debugging firewall or reverse-proxy rules.
+
+### `/api/start` (Brainway contract)
+
+Brainway’s [`recallStartMeetingFn`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/recall-meet-fns.ts) POSTs JSON:
+
+- `meetingUrl`, optional `meetingPassword`
+- `avatarType`, `avatarId`, optional `botName`, `maxDuration`
+- `systemPrompt` (optional) — ND personality string from `buildCharacterPersonality`
+
+Headers:
+
+- **`X-Runway-Key`**: Runway bearer secret.
+- **`X-Runway-Base-Url`**: Runway API **origin** the bridge should use (must align with [Runway integration](/docs/runway-integration)).
+
+## Production deployment
+
+Deploy **`recall-bridge`** as a **long-lived Node HTTP service** (Railway, Render, Fly.io, etc.):
+
+1. Set **`RECALL_API_KEY`**, **`RECALL_REGION`**, **`PUBLIC_URL`** to the service’s public HTTPS URL.
+2. Start with **`npm start`** (or platform equivalent).
+3. Point **`RECALL_BRIDGE_URL`** in Brainway at the same origin.
+
+## Failure modes
+
+| Symptom | Likely cause |
+|---------|----------------|
+| **`403 request_blocked`** from Recall | `PUBLIC_URL` was localhost, `http`, or private IP |
+| Bot page blank / no session | `bot.html` missing `session` query param or WS failed—check bridge logs |
+| Runway errors on start | Invalid API secret; wrong base URL; avatar preset/custom mismatch |
+
+## Related docs
+
+- [Routes & features](/docs/brainway-routes) (`/meet`)
+- [Troubleshooting](/docs/troubleshooting)

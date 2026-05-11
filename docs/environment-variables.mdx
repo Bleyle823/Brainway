@@ -1,0 +1,46 @@
+---
+title: Environment variables
+description: Brainway and recall-bridge configuration reference.
+---
+
+## Brainway web app (`Brainway/`)
+
+Set secrets in **`.env.local`** (preferred) or **`.env`**. For Cloudflare Workers production, mirror names in **`wrangler secret put`** / dashboard vars.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| **`RUNWAYML_API_SECRET`** | **Yes** for video, transforms, Characters | Org API secret from [dev.runwayml.com](https://dev.runwayml.com/) |
+| **`RUNWAYML_API_BASE_URL`** | No | API base ending in `/v1`, e.g. `https://api.dev.runwayml.com/v1` |
+| **`RUNWAYML_BASE_URL`** | No | Origin alias; `/v1` appended if omitted |
+| **`RUNWAY_CHARACTER_AVATAR_ID`** | No | Default avatar id (`music-superstar` if unset) |
+| **`RUNWAY_CHARACTER_AVATAR_TYPE`** | No | `runway-preset` (default) or `custom` — **`custom`** required for ND personality prompts on `/live` and `/meet` preview |
+| **`RECALL_BRIDGE_URL`** | No | HTTPS origin of `recall-bridge` (**no trailing slash**). Required for **Send Character to Meeting** |
+
+Template: [`Brainway/.env.example`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/.env.example)
+
+### Local dev nuance for `RECALL_BRIDGE_URL`
+
+`Brainway/.env.example` documents that you may point at a **local proxy** (`http://127.0.0.1:3099`) while iterating; **Recall’s bot** still needs the bridge’s **`PUBLIC_URL`** to be a real **`https://`** hostname. See [Recall bridge](/docs/recall-bridge).
+
+## recall-bridge (`recall-bridge/`)
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| **`RECALL_API_KEY`** | **Yes** | Recall.ai token (`Token` auth against regional API host) |
+| **`RECALL_REGION`** | **Yes** | e.g. `us-west-2` — used to build `https://{region}.recall.ai/api/v1` |
+| **`PUBLIC_URL`** | **Yes** for real bots | Public **`https://`** base (no trailing slash) where Recall loads **`/bot.html`** and opens WebSockets. **Never** `localhost` / `http` |
+| **`PORT`** | No | Listen port (default `3000`; `3099` common with tunnel scripts) |
+
+Railway-style hosts: **`RAILWAY_PUBLIC_DOMAIN`** can auto-fill `PUBLIC_URL` as `https://{domain}` when set.
+
+Template: [`recall-bridge/.env.example`](https://github.com/Bleyle823/Brainway/blob/main/recall-bridge/.env.example)
+
+## Quick validation
+
+1. **Brainway**: missing secret → server fns throw `RUNWAYML_API_SECRET is not configured`.
+2. **Bridge**: invalid `PUBLIC_URL` → Recall **`403 request_blocked`** or bridge startup validation errors with explicit messages in logs (see [`server.js`](https://github.com/Bleyle823/Brainway/blob/main/recall-bridge/server.js)).
+
+## Related docs
+
+- [Development workflow](/docs/development-workflow)
+- [Deployment](/docs/deployment)

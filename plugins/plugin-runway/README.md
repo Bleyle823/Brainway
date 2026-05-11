@@ -41,8 +41,10 @@ See [`.env.example`](.env.example).
 
 ## Usage in an Eliza character
 
+The agent must include this plugin in `character.plugins` and have `RUNWAYML_API_SECRET` set; otherwise Runway actions are not registered and workflow/org calls cannot run.
+
 ```ts
-import runwayPlugin from '@elizaos/plugin-starter';
+import runwayPlugin from '@elizaos/plugin-runway';
 
 export const character = {
   // ...
@@ -51,6 +53,8 @@ export const character = {
 ```
 
 Register **services** in load order: `runway` → `runway-media` → `runway-characters` (the plugin array order defines this when using the default `Plugin.services` list).
+
+Bootstrap’s **ACTIONS** provider only exposes actions whose `validate()` passes for the current user message (plus composed `state.text`). Workflow list actions need **Runway** in the message or recent state context unless the user matches a built-in trigger phrase; see [`workflowManagementActions.ts`](src/actions/workflowManagementActions.ts).
 
 ## Actions (natural language)
 
@@ -61,6 +65,10 @@ Register **services** in load order: `runway` → `runway-media` → `runway-cha
 | `RUNWAY_START_CHARACTER_SESSION` | “start character session …”, “runway character …” |
 | `RUNWAY_GENERATE_AUDIO` | “sound effect …”, “text to speech …”, “voice dub …”, “speech to speech …” |
 | `RUNWAY_TRANSFORM_MEDIA` | “video to video …”, “act two …”, “transform video …” |
+| `RUNWAY_LIST_WORKFLOWS` | “list/show/get my Runway workflows”, “what workflows on Runway …” (Runway in message or state) |
+| `RUNWAY_GET_WORKFLOW` | “workflow details/schema …” + `workflowId:uuid` or pasted UUID |
+| `RUNWAY_RUN_WORKFLOW` | “run/execute Runway workflow …” + `workflowId:uuid` |
+| `RUNWAY_GET_ORGANIZATION` | “runway organization …”, “runway credits …” |
 
 Best-effort `key:value` pairs in the message (e.g. `promptVideo:https://...`, `ratio:1280:720`, `targetLang:es`) are parsed in actions.
 

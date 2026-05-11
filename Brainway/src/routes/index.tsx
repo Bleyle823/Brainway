@@ -3,6 +3,9 @@ import Hero from "@/components/Hero";
 import SponsorTicker from "@/components/SponsorTicker";
 import FeatureHighlights from "@/components/FeatureHighlights";
 import LiveMeetingSection from "@/components/LiveMeetingSection";
+import RoadmapSection from "@/components/RoadmapSection";
+import EcosystemSection from "@/components/EcosystemSection";
+import CollaborationsSection from "@/components/CollaborationsSection";
 import UseModesSection from "@/components/UseModesSection";
 import Problem from "@/components/Problem";
 import HowItWorks from "@/components/HowItWorks";
@@ -19,7 +22,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Brainway turns PDFs, URLs, and voice memos into calm, sensory-safe Gen-4.5 video designed for ADHD and autistic learners.",
+          "Brainway turns learning materials into calm, sensory aware video and live Runway Characters sessions. Roadmap includes sign language aware avatars for deaf and hard of hearing learners, plus Hermes and ElizaOS developer plugins.",
       },
     ],
   }),
@@ -32,12 +35,15 @@ function Index() {
       <SponsorTicker />
       <FeatureHighlights />
       <LiveMeetingSection />
+      <CollaborationsSection />
       <UseModesSection />
       <Problem />
       <HowItWorks />
       <Audience />
       <CTA />
       <BrandKitCallout />
+      <RoadmapSection />
+      <EcosystemSection />
       <Footer />
     </main>
   );

@@ -1,0 +1,55 @@
+---
+title: Deployment
+description: Cloudflare Workers, Vercel (Nitro), and recall-bridge in production.
+---
+
+## Brainway web app
+
+### Cloudflare Workers (primary documented path)
+
+[`Brainway/wrangler.jsonc`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/wrangler.jsonc) points the Worker `main` at [`src/server.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/server.ts) with `nodejs_compat`.
+
+1. Install/configure [Wrangler](https://developers.cloudflare.com/workers/wrangler/) and authenticate to your Cloudflare account.
+2. From **`Brainway/`**, run production build: `npm run build`.
+3. Deploy: `wrangler deploy` (exact CI integration is repo-specific).
+4. Set **secrets / vars** in the dashboard to mirror [Environment variables](/docs/environment-variables):
+   - **`RUNWAYML_API_SECRET`** (secret)
+   - Optional **`RUNWAY_CHARACTER_*`**, **`RECALL_BRIDGE_URL`**, API base overrides
+
+The Vite pipeline emits a **`tanstack_start_app`** bundle wired for Cloudflare when building with the Cloudflare plugin enabled (see [`vite.config.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/vite.config.ts)).
+
+### Vercel (Nitro SSR)
+
+[`Brainway/vite.config.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/vite.config.ts) enables **Nitro** with **`preset: "vercel"`** when **`BRAINWAY_VERCEL_DEPLOY=1`** (set by [`vercel.json`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/vercel.json) via `cross-env`) or when **`VERCEL=1`** (enable [system environment variables](https://vercel.com/docs/projects/environment-variables/system-environment-variables) if you rely on that).
+
+[`vercel.json`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/vercel.json) sets **`installCommand`** and **`buildCommand`**.
+
+**Dashboard checklist:**
+
+1. **Root Directory**: **`Brainway`** (case-sensitive; must exist on the linked Git branch).
+2. **Output Directory**: **empty** — do **not** set `dist/client`; Nitro emits **`.vercel/output`** and a root `index.html` is not in `dist/client`.
+3. Mirror **`RUNWAYML_API_SECRET`** and other vars from [Environment variables](/docs/environment-variables).
+
+If deploy logs do **not** show Nitro / `.vercel/output`, verify **`buildCommand`** still forces **`BRAINWAY_VERCEL_DEPLOY=1`** and that dashboard overrides did not strip it.
+
+## recall-bridge
+
+Deploy as a **standalone Node service** with:
+
+- **`RECALL_API_KEY`**, **`RECALL_REGION`**
+- **`PUBLIC_URL`** exactly matching the service’s public **`https://`** origin (Recall constraint)
+- **`npm start`** or `node server.js` per host conventions
+
+Set Brainway’s **`RECALL_BRIDGE_URL`** to that same origin (no trailing slash).
+
+If the host injects **`RAILWAY_PUBLIC_DOMAIN`**, the bridge can derive `https://{domain}` automatically—see [`server.js`](https://github.com/Bleyle823/Brainway/blob/main/recall-bridge/server.js).
+
+## Staging vs production keys
+
+Use **separate** Runway org secrets and Recall keys per environment. Rotate keys if they appear in logs, tickets, or client-side bundles (they should not).
+
+## Related docs
+
+- [Development workflow](/docs/development-workflow)
+- [Troubleshooting](/docs/troubleshooting)
+- [Security & privacy](/docs/security-privacy)

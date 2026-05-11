@@ -1,0 +1,51 @@
+---
+title: Security & privacy
+description: Secrets, data flows, conferencing, and deployment hygiene.
+---
+
+## Secrets
+
+| Secret | Where it must live | Never |
+|--------|-------------------|-------|
+| **`RUNWAYML_API_SECRET`** | Brainway server env (Worker/Vercel secrets in prod) | Browser bundle, client `import.meta.env` exposure, public repos |
+| **`RECALL_API_KEY`** | **`recall-bridge`** env only | Committed `.env`, client-side |
+| Recall / Runway tokens in URLs | N/A | Avoid putting keys in query strings or logs |
+
+Brainway’s browser does **not** need the Runway org secret for normal operation—server functions broker calls.
+
+## Data flows (high level)
+
+- **Transforms / create / safe media:** User-selected content and prompts go to **Brainway server functions**, then to **Runway** per your org’s data processing terms.
+- **`/live`:** Browser receives short-lived **session credentials** (`@runwayml/avatars-react`) after server creates a realtime session; treat those as sensitive during the session.
+- **`/meet`:** **Meeting URL** (and optional password) transits through Brainway to **`recall-bridge`** and onward to **Recall.ai**. Understand Recall’s retention and compliance posture for your use case.
+- **`/community`:** Default implementation stores uploads in **process memory** on the server handling the request—**not suitable** for PHI/PII without hardening.
+
+## Conferencing and recording policies
+
+Many institutions regulate **bots in meetings**, **recording**, and **student consent**. Before enabling `/meet`:
+
+- Confirm policy for **third-party AI participants**.
+- Inform attendees per local law and institutional norms.
+- Prefer **test meetings** with explicit participant consent.
+
+## Dependency and supply chain
+
+- Keep **npm audit** / Dependabot workflows aligned with your org standards.
+- Pin major tooling in CI; review upgrades to `@runwayml/*` packages against Runway changelog.
+
+## Minors and sensitive contexts
+
+Production deployments that include minors, patients, or regulated data need:
+
+- **Authentication & authorisation**
+- **Audit logging**
+- **Data retention limits**
+- **Moderation** for community features
+
+The open-source defaults are **not** a turnkey FERPA/HIPAA solution.
+
+## Related docs
+
+- [Recall bridge](/docs/recall-bridge)
+- [Environment variables](/docs/environment-variables)
+- [Research, claims, and limitations](/docs/research-limitations)

@@ -1,15 +1,54 @@
 ---
 title: Repository layout
-description: How the Brainway monorepo is organized.
+description: Monorepo structure — app, docs, recall bridge, and Runway plugins.
 ---
 
-# Repository layout
+The Brainway GitHub repository is a **monorepo**. Paths are case-sensitive on Linux CI hosts; the web app directory is **`Brainway/`** (capital **B**).
+
+## Top-level map
 
 | Path | Description |
 |------|-------------|
-| `Brainway/` | Web application — TanStack Start, Vite, Cloudflare Worker |
-| `docs/` | Documentation (including these Mintlify pages) |
-| `plugins/runway/` | Hermes — Python Runway plugin |
-| `plugins/plugin-runway/` | ElizaOS — TypeScript Runway plugin |
+| [`Brainway/`](https://github.com/Bleyle823/Brainway/tree/main/Brainway) | **Main web application** — TanStack Start, React 19, Vite 7, Tailwind v4, Cloudflare Worker deploy path |
+| [`docs/`](https://github.com/Bleyle823/Brainway/tree/main/docs) | **Mintlify MDX** (this site) + [`docs/README.md`](https://github.com/Bleyle823/Brainway/blob/main/docs/README.md) index |
+| [`recall-bridge/`](https://github.com/Bleyle823/Brainway/tree/main/recall-bridge) | **Node + Express** service: Recall.ai bot, `bot.html`, WebSocket relay for Runway Characters in conferences |
+| [`plugins/runway/`](https://github.com/Bleyle823/Brainway/tree/main/plugins/runway) | **Hermes** — Python Runway plugin |
+| [`plugins/plugin-runway/`](https://github.com/Bleyle823/Brainway/tree/main/plugins/plugin-runway) | **ElizaOS** — TypeScript Runway plugin |
+| [`docs.json`](https://github.com/Bleyle823/Brainway/blob/main/docs.json) | Mintlify configuration (repo **root**, not inside `docs/`) |
+| [`.mintlify/`](https://github.com/Bleyle823/Brainway/tree/main/.mintlify) | Mintlify assistant instructions |
 
-The top-level [`README.md`](https://github.com) in the repo root links all of these together.
+The [root `README.md`](https://github.com/Bleyle823/Brainway/blob/main/README.md) ties these together for contributors.
+
+## Brainway application source (`Brainway/`)
+
+| Path | Role |
+|------|------|
+| [`src/routes/`](https://github.com/Bleyle823/Brainway/tree/main/Brainway/src/routes) | File-based routes (`createFileRoute`); segments like `live.tsx` → `/live` |
+| [`src/routeTree.gen.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/routeTree.gen.ts) | **Generated** TanStack Router tree — do not hand-edit for new routes; regenerate via dev/build |
+| [`src/components/`](https://github.com/Bleyle823/Brainway/tree/main/Brainway/src/components) | Shared UI, marketing sections, transform widgets, live session shell |
+| [`src/lib/`](https://github.com/Bleyle823/Brainway/tree/main/Brainway/src/lib) | Runway clients, transforms, Characters helpers, Recall proxy fns, neurosafe stubs |
+| [`src/start.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/start.ts) | TanStack Start instance (e.g. error middleware) |
+| [`src/server.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/server.ts) | Server entry (Cloudflare-compatible forwarding) |
+| [`vite.config.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/vite.config.ts) | Vite + TanStack Start + Tailwind; Cloudflare plugin in production builds |
+| [`wrangler.jsonc`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/wrangler.jsonc) | Worker name, `nodejs_compat`, entry module |
+
+## recall-bridge layout
+
+| Path | Role |
+|------|------|
+| [`server.js`](https://github.com/Bleyle823/Brainway/blob/main/recall-bridge/server.js) | Express app, Recall + Runway API calls, session store, WebSocket relay |
+| [`public/bot.html`](https://github.com/Bleyle823/Brainway/blob/main/recall-bridge/public/bot.html) | Page Recall loads as the bot “camera”; connects to Runway/LiveKit |
+| [`.env.example`](https://github.com/Bleyle823/Brainway/blob/main/recall-bridge/.env.example) | `RECALL_API_KEY`, `RECALL_REGION`, `PUBLIC_URL`, `PORT` |
+
+Details: [Recall bridge](/docs/recall-bridge).
+
+## Where logic lives for major features
+
+| Concern | Primary files |
+|--------|----------------|
+| Transform prompts (`gen4_aleph`) | [`Brainway/src/lib/transform-prompts.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/transform-prompts.ts), [`transform-fns.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/transform-fns.ts) |
+| Character personality (custom avatars) | [`character-personality.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/character-personality.ts), [`character-fns.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/character-fns.ts) |
+| Runway REST / Workers-safe fetch | [`runway-api.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/runway-api.ts), [`runway-characters.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/runway-characters.ts), [`runway-config.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/runway-config.ts) |
+| `/meet` → bridge | [`recall-meet-fns.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/recall-meet-fns.ts), [`recall-bridge-config.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/recall-bridge-config.ts) |
+| Community CRUD (in-memory) | [`neurosafe-fns.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/neurosafe-fns.ts) |
+| `/meet` URL profile presets | [`meet-presets.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/meet-presets.ts) |

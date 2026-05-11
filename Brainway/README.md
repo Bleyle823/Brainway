@@ -1,5 +1,7 @@
 # Brainway
 
+For product positioning, public **roadmap**, **collaborations**, and **ecosystem** narrative (Hermes, ElizaOS, ElevenLabs as a comparison point for agent distribution), see the **[root `README.md`](../README.md)** in this monorepo.
+
 Brainway is a web application for turning learning materials into calm, sensory-aware experiences. It targets neurodivergent learners (for example ADHD and autistic audiences) with toned-down motion, profile-driven accessibility settings, and tooling built around [Runway](https://runwayml.com/) video and Characters APIs.
 
 The product blends a marketing landing page, an AI-assisted **transform** studio, an **educator create** flow for short educational clips, optional **live** avatar sessions, and a **community** surface for sharing neurodivergent-friendly resources.
@@ -87,7 +89,7 @@ The following reflects the fuller application surface (see [Branches](#branches-
 
 | Route | Purpose |
 |-------|---------|
-| `/` | Landing: hero, sponsor ticker, feature highlights, **live meeting** CTA ([`LiveMeetingSection`](src/components/LiveMeetingSection.tsx)), use modes, problem, how-it-works, audience, CTA, footer |
+| `/` | Landing: hero, sponsor ticker, feature highlights, **live meeting** ([`LiveMeetingSection`](src/components/LiveMeetingSection.tsx)), **roadmap** ([`RoadmapSection`](src/components/RoadmapSection.tsx)), **ecosystem** ([`EcosystemSection`](src/components/EcosystemSection.tsx)), **collaborations** ([`CollaborationsSection`](src/components/CollaborationsSection.tsx)), use modes, problem, how-it-works, audience, CTA, footer |
 | `/transform` | Studio for transforming existing media (profiles, uploads, Runway-backed tasks — see [`src/lib/transform-fns.ts`](src/lib/transform-fns.ts)) |
 | `/create` | Educator-oriented Gen-4.5 text/image-to-video flow ([`src/routes/create.tsx`](src/routes/create.tsx)) |
 | `/live` | Runway **Characters** realtime session UI ([`@runwayml/avatars-react`](src/routes/live.tsx)) |

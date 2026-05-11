@@ -1,0 +1,75 @@
+---
+title: Troubleshooting
+description: Common Brainway and recall-bridge errors and fixes.
+---
+
+## Brainway
+
+### `RUNWAYML_API_SECRET is not configured`
+
+**Cause:** Server function called Runway but env var missing/unloaded.
+
+**Fix:** Add secret to **`Brainway/.env.local`** (or Worker/Vercel env). **Restart** `npm run dev`. Confirm no accidental quoting/whitespace issues—`getRunwayApiSecret` trims but empty string still fails.
+
+### Double `/v1` Runway URLs (`/v1/v1/...` → 404)
+
+**Cause:** Passed **`getRunwayApiBase()`** (includes `/v1`) into **`@runwayml/sdk`** constructor which already prefixes `/v1`.
+
+**Fix:** Use **`getRunwayApiOrigin()`** for SDK `baseURL`. Use **`getRunwayApiBase()`** only for raw `fetch`. See [Runway integration](/docs/runway-integration).
+
+### Characters realtime 400 / discriminator errors
+
+**Cause:** Mismatch between **preset** vs **custom** avatar payload and Runway API expectations (`presetId` vs `avatarId`; personality fields only for custom).
+
+**Fix:** Align **`RUNWAY_CHARACTER_AVATAR_TYPE`** and id with Runway dashboard. Read [`runway-characters.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/runway-characters.ts) and [`character-fns.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/character-fns.ts).
+
+### `routeTree.gen.ts` import errors / build failures
+
+**Cause:** Generated tree out of sync with `src/routes/*.tsx`.
+
+**Fix:** Run **`npm run dev`** or **`npm run build`** to regenerate; ensure every route file exists; **do not** hand-edit `routeTree.gen.ts` for new routes.
+
+### Vercel `404 NOT_FOUND`
+
+**Cause:** Wrong output directory (e.g. `dist/client`) or Nitro not running.
+
+**Fix:** Clear **Output Directory** in dashboard; confirm build logs show Nitro / `.vercel/output`. See [Deployment](/docs/deployment).
+
+### `/meet` errors from Brainway UI
+
+| Symptom | Fix |
+|---------|-----|
+| `RECALL_BRIDGE_URL is not configured` | Set env in Brainway; redeploy/restart |
+| Bridge HTTP errors | Open **`GET {bridge}/api/health`**; verify Recall + `PUBLIC_URL` on bridge |
+| Session stuck | Inspect **`GET {bridge}/api/sessions/:id`** logs in UI; check Recall dashboard |
+
+## recall-bridge
+
+### Recall `403 request_blocked`
+
+**Cause:** **`PUBLIC_URL`** used `http://`, `localhost`, `127.0.0.1`, or private IP.
+
+**Fix:** Run **`npm run tunnel`** for local dev or set prod HTTPS URL; restart bridge after `.env` update. See [Recall bridge](/docs/recall-bridge).
+
+### `bot.html` loads but no video / frozen bot
+
+**Cause:** WebSocket blocked by proxy; **`session` query** missing; Recall bot failed mid-flight.
+
+**Fix:** Check bridge logs for WebSocket upgrade paths **`/ws/recall-video/...`** and **`/ws/video-relay/...`**. Ensure corporate firewall allows **WSS** to your tunnel/production host.
+
+### Runway errors inside bridge
+
+**Cause:** Invalid **`X-Runway-Key`** / wrong **`X-Runway-Base-Url`**; org lacks model access; rate limits.
+
+**Fix:** Reproduce with minimal `curl` to Runway using same headers; verify plan/dashboard access.
+
+## Still stuck?
+
+1. Confirm **Node 20+** and clean `npm install`.
+2. Compare local **`.env.example`** files with your actual env (typos, wrong region).
+3. Open an issue with **redacted** logs (no API keys).
+
+## Related docs
+
+- [Environment variables](/docs/environment-variables)
+- [Development workflow](/docs/development-workflow)

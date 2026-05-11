@@ -7,13 +7,36 @@ import {
   generateVideoAction,
   startCharacterAction,
   transformMediaAction,
+  getOrganizationAction,
+  getCreditUsageAction,
+  listVoicesAction,
+  createVoiceAction,
+  getVoiceAction,
+  listWorkflowsAction,
+  getWorkflowAction,
+  runWorkflowAction,
+  listAvatarsManagementAction,
+  createAvatarManagementAction,
+  getAvatarManagementAction,
+  updateAvatarManagementAction,
+  deleteAvatarManagementAction,
+  linkAvatarDocumentsAction,
+  createDocumentAction,
+  listDocumentsAction,
+  getDocumentAction,
+  deleteDocumentAction,
 } from './actions/index.ts';
 import {
   activeSessionsProvider,
   mediaCapabilitiesProvider,
   runwayStatusProvider,
 } from './providers/index.ts';
-import { CharacterService, MediaProcessingService, RunwayService } from './services/index.ts';
+import {
+  CharacterService,
+  MediaProcessingService,
+  RunwayManagementService,
+  RunwayService,
+} from './services/index.ts';
 
 const configSchema = z.object({
   RUNWAYML_API_SECRET: z
@@ -30,7 +53,7 @@ const configSchema = z.object({
 export const runwayPlugin: Plugin = {
   name: 'plugin-runway',
   description:
-    'ElizaOS plugin for Runway Developer API: Gen-4.5 video, gen4_image, Characters (gwm1_avatars), ElevenLabs audio tasks, gen4_aleph / act_two transforms.',
+    'ElizaOS plugin for Runway Developer API: video/image/audio generation, Characters sessions, org/credits/usage, avatars & documents, custom voices, published workflows, gen4_aleph / act_two.',
   config: {
     RUNWAYML_API_SECRET: process.env.RUNWAYML_API_SECRET,
     RUNWAYML_API_BASE_URL: process.env.RUNWAYML_API_BASE_URL,
@@ -74,13 +97,31 @@ export const runwayPlugin: Plugin = {
     },
   ],
 
-  services: [RunwayService, MediaProcessingService, CharacterService],
+  services: [RunwayService, RunwayManagementService, MediaProcessingService, CharacterService],
   actions: [
     generateVideoAction,
     generateImageAction,
     startCharacterAction,
     generateAudioAction,
     transformMediaAction,
+    getOrganizationAction,
+    getCreditUsageAction,
+    listVoicesAction,
+    createVoiceAction,
+    getVoiceAction,
+    listWorkflowsAction,
+    getWorkflowAction,
+    runWorkflowAction,
+    listAvatarsManagementAction,
+    createAvatarManagementAction,
+    getAvatarManagementAction,
+    updateAvatarManagementAction,
+    deleteAvatarManagementAction,
+    linkAvatarDocumentsAction,
+    createDocumentAction,
+    listDocumentsAction,
+    getDocumentAction,
+    deleteDocumentAction,
   ],
   providers: [runwayStatusProvider, activeSessionsProvider, mediaCapabilitiesProvider],
 };

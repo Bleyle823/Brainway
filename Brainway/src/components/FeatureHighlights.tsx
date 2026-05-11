@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Brain, Sparkle } from "@phosphor-icons/react";
+import { LANDING_COLLABORATIONS } from "@/lib/landing-collaborations";
 
 export default function FeatureHighlights() {
   return (
@@ -89,16 +90,29 @@ export default function FeatureHighlights() {
         </motion.article>
       </div>
 
-      <div className="mx-auto mt-10 hidden max-w-6xl items-center justify-between gap-8 border-t border-neutral-300/80 pt-10 md:flex">
-        <p className="max-w-sm text-sm text-neutral-600">
-          Trusted by teams who need compliant, sensory-aware media without a full post house on retainer.
+      <div className="mx-auto mt-10 hidden max-w-6xl flex-col gap-6 border-t border-neutral-300/80 pt-10 md:flex">
+        <p className="max-w-xl text-sm text-neutral-600">
+          Collaborations and cosigns appear on the home page below the live meeting section. Replace placeholder partner
+          rows in code with your named programs as they land.
         </p>
-        <div className="flex flex-wrap items-center justify-end gap-x-10 gap-y-4 opacity-70 grayscale">
-          {["KUCOIN", "BSC", "NxGen", "Matter Labs", "DEXTOOLS", "NURAVE", "Polychain"].map((name) => (
-            <span key={name} className="text-xs font-bold tracking-[0.2em] text-neutral-800">
-              {name}
-            </span>
-          ))}
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+          {LANDING_COLLABORATIONS.map((c) =>
+            c.href ? (
+              <a
+                key={c.name}
+                href={c.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-semibold tracking-wide text-neutral-800 underline-offset-4 hover:underline"
+              >
+                {c.name}
+              </a>
+            ) : (
+              <span key={c.name} className="text-xs font-semibold tracking-wide text-neutral-700">
+                {c.name}
+              </span>
+            ),
+          )}
         </div>
       </div>
     </section>

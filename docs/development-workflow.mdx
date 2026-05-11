@@ -1,0 +1,96 @@
+---
+title: Development workflow
+description: Prerequisites, local setup, scripts, and optional recall-bridge for /meet.
+---
+
+## Prerequisites
+
+- **Node.js 20+** (aligned with Vite 7 / React 19 toolchains).
+- **npm** (lockfiles are committed).
+- **Runway** org API secret from [Runway Developer Portal](https://dev.runwayml.com/) for any video, transform, or Characters feature.
+
+Optional for conference bots:
+
+- **Recall.ai** API key and region.
+- **Cloudflare Quick Tunnel** (`cloudflared`) or another **public HTTPS** URL for `recall-bridge` (Recall blocks raw `localhost` in bot payloads).
+
+## Clone and install
+
+```bash
+git clone https://github.com/Bleyle823/Brainway.git
+cd Brainway
+```
+
+### Run the Brainway web app
+
+All app commands run from **`Brainway/`**:
+
+```bash
+cd Brainway
+npm install
+cp .env.example .env.local   # Windows: copy .env.example .env.local
+```
+
+Edit **`.env.local`** and set at minimum:
+
+```bash
+RUNWAYML_API_SECRET=your_org_secret
+```
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+Open the URL Vite prints (commonly `http://localhost:5173`).
+
+### Run recall-bridge (optional, for `/meet`)
+
+From the **repository root**:
+
+```bash
+cd recall-bridge
+npm install
+cp .env.example .env
+```
+
+Set **`RECALL_API_KEY`**, **`RECALL_REGION`**, and a public **`PUBLIC_URL`** (see [Recall bridge](/docs/recall-bridge)). For local dev, run **`npm run tunnel`** in one terminal so `.env` gets a `trycloudflare.com` HTTPS URL, then **`npm run dev`** in another.
+
+In **`Brainway/.env.local`**, set:
+
+```bash
+RECALL_BRIDGE_URL=https://your-tunnel-or-deployed-origin.example.com
+```
+
+Use the **same HTTPS origin** Recall uses to load `/bot.html`, or a documented local proxy pattern from [`Brainway/.env.example`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/.env.example).
+
+Restart Brainway after changing env vars.
+
+## npm scripts (`Brainway/`)
+
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | TanStack Start + Vite development |
+| `npm run build` | Production build (client + SSR + Worker bundle) |
+| `npm run build:dev` | Production-mode Vite build with `development` env |
+| `npm run preview` | Preview production client build locally |
+| `npm run lint` | ESLint |
+| `npm run format` | Prettier write |
+
+## Routing and codegen
+
+- Routes live under **`src/routes/`** as `*.tsx` files (file-based router).
+- **`src/routeTree.gen.ts`** is **generated**. If it drifts from route files, builds fail—run dev/build to regenerate; do not hand-edit the generated tree to add routes.
+
+## Quality checklist before a PR
+
+- `RUNWAYML_API_SECRET` set locally for any Runway-touched change; verify happy path for the route you edited.
+- If you touched `/meet`, verify **bridge** + **`RECALL_BRIDGE_URL`** against Recall’s requirements (HTTPS `PUBLIC_URL`).
+- Run `npm run lint` from `Brainway/`.
+
+## Where to read next
+
+- [Architecture](/docs/brainway-architecture)
+- [Environment variables](/docs/environment-variables)
+- [Troubleshooting](/docs/troubleshooting)
