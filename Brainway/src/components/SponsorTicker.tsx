@@ -1,4 +1,4 @@
-import { LANDING_COLLABORATIONS } from "@/lib/landing-collaborations";
+import { getLandingTickerNames } from "@/lib/landing-collaborations";
 
 function TickerGlyph() {
   const common =
@@ -25,7 +25,7 @@ function TickerItem({ name }: { name: string }) {
 }
 
 export default function SponsorTicker() {
-  const labels = LANDING_COLLABORATIONS.map((c) => c.name);
+  const labels = getLandingTickerNames();
   const doubled = [...labels, ...labels];
 
   return (
