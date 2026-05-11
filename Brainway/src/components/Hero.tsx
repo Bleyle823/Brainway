@@ -1,7 +1,8 @@
 import { motion } from "motion/react";
 import Navbar from "./Navbar";
-import { Play, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
+import { Play, ArrowRight, ArrowUpRight, GithubLogo, ChatCircleDots } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
+import { PROJECT_GITHUB_URL, RUNWAY_HERMES_BOT_URL } from "@/lib/brand-kit";
 
 export default function Hero() {
   return (
@@ -45,6 +46,27 @@ export default function Hero() {
               <Link to="/create" className="text-sm underline decoration-neutral-300">
                 Request a call
               </Link>
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-neutral-600">
+              <a
+                href={PROJECT_GITHUB_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 font-medium text-neutral-800 underline decoration-neutral-300 underline-offset-4 hover:text-neutral-950 hover:decoration-neutral-950"
+              >
+                <GithubLogo className="h-5 w-5 shrink-0" weight="fill" aria-hidden />
+                Project GitHub
+              </a>
+              <a
+                href={RUNWAY_HERMES_BOT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 font-medium text-neutral-800 underline decoration-neutral-300 underline-offset-4 hover:text-neutral-950 hover:decoration-neutral-950"
+              >
+                <ChatCircleDots className="h-5 w-5 shrink-0" weight="fill" aria-hidden />
+                Runway Hermes bot
+              </a>
             </div>
           </div>
 
