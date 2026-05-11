@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, MagicWand, VideoCamera, Sparkle } from "@phosphor-icons/react";
+import { ArrowUpRight, MagicWand, VideoCamera, Sparkle, ClipboardText } from "@phosphor-icons/react";
+import { USER_FEEDBACK_FORM_URL } from "@/lib/brand-kit";
 
 export default function CTA() {
   return (
@@ -69,6 +70,24 @@ export default function CTA() {
                 <span className="text-sm md:text-base font-normal">Transform existing video</span>
               </motion.span>
             </Link>
+
+            <a
+              href={USER_FEEDBACK_FORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex"
+            >
+              <motion.span
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center bg-white/40 backdrop-blur-sm border border-neutral-400/50 text-neutral-950 rounded-full pl-2 pr-6 py-2 gap-3 hover:bg-white/70 transition-colors cursor-pointer"
+              >
+                <span className="bg-neutral-200/70 rounded-full p-2 flex items-center justify-center">
+                  <ClipboardText className="w-5 h-5" weight="fill" />
+                </span>
+                <span className="text-sm md:text-base font-normal">User feedback survey</span>
+              </motion.span>
+            </a>
           </div>
         </motion.div>
       </div>

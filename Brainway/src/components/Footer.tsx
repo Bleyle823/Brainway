@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BRAND_KIT_FIGMA_URL } from "@/lib/brand-kit";
+import { BRAND_KIT_FIGMA_URL, USER_FEEDBACK_FORM_URL } from "@/lib/brand-kit";
 
 const cols = [
   { title: "Product", links: ["Overview", "How it works", "Pricing", "Changelog"] },
@@ -51,6 +51,14 @@ export default function Footer() {
             <Link to="/community" className="hover:text-neutral-300 transition-colors">
               Community safe library
             </Link>
+            <a
+              href={USER_FEEDBACK_FORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-neutral-300 transition-colors"
+            >
+              User feedback
+            </a>
             <a
               href={BRAND_KIT_FIGMA_URL}
               target="_blank"
