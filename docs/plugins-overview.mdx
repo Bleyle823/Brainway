@@ -1,14 +1,63 @@
 ---
 title: Plugins overview
-description: Runway-related plugins in the monorepo.
+description: Hermes (Python) and ElizaOS (TypeScript) Runway plugins in this monorepo.
 ---
 
-# Plugins
+The Brainway monorepo ships **two optional agent plugins** that call the **Runway Developer API** outside the web app. They share conceptual overlap with Brainway (`RUNWAYML_API_SECRET`, Characters, Gen-4.5) but run in **Hermes** or **ElizaOS** hosts—not inside TanStack Start.
 
-## `plugins/runway/` — Hermes
+## `plugins/runway/` — Hermes (Python)
 
-Python Runway plugin for Hermes. See `plugins/runway/README.md`.
+**Purpose:** Plugin for the **Hermes** agent host (install steps in the plugin README) with tools for:
 
-## `plugins/plugin-runway/` — ElizaOS
+| Tool (examples) | Capability |
+|-----------------|------------|
+| `generate_video` | Gen-4.5 text/image-to-video |
+| `generate_image` | `gen4_image` with optional references |
+| `start_character_session` | Realtime `gwm1_avatars` sessions |
+| `generate_audio` | TTS, SFX, dubbing, speech conversion |
+| `transform_media` | `gen4_aleph`, `act_two` |
 
-TypeScript Runway plugin for ElizaOS. See `plugins/plugin-runway/README.md`.
+**Install (summary):**
+
+1. Copy/symlink into `~/.hermes/plugins/runway/`.
+2. `export RUNWAYML_API_SECRET=…`
+3. `hermes plugins enable runway` + restart Hermes.
+
+**Env vars:** `RUNWAYML_API_SECRET` (required); optional `RUNWAY_CHARACTER_AVATAR_*`, `RUNWAYML_API_BASE_URL`.
+
+Full tool schemas and CLI notes: [`plugins/runway/README.md`](https://github.com/Bleyle823/Brainway/blob/main/plugins/runway/README.md).
+
+## `plugins/plugin-runway/` — ElizaOS (TypeScript)
+
+**Purpose:** [ElizaOS](https://github.com/elizaos)-compatible package exposing **actions**, **providers**, and a small **health route** for Runway media workflows.
+
+| Action | Intent |
+|--------|--------|
+| `RUNWAY_GENERATE_VIDEO` | Gen-4.5 video |
+| `RUNWAY_GENERATE_IMAGE` | Still image |
+| `RUNWAY_START_CHARACTER_SESSION` | Characters session credentials |
+| `RUNWAY_GENERATE_AUDIO` | Audio tasks |
+| `RUNWAY_TRANSFORM_MEDIA` | Video-to-video / performance |
+
+**Runtime:** **Bun** for build/install in that package; `@runwayml/sdk` is **external** in the bundle—install it where the agent runs.
+
+**Providers:** `RUNWAY_STATUS`, `RUNWAY_ACTIVE_SESSIONS`, `RUNWAY_MEDIA_CAPABILITIES` — secrets are never printed.
+
+**HTTP:** `GET /runway/health` → `{ plugin, ok, hasSecret }`.
+
+**Web / client integration:** Character actions return LiveKit-compatible fields for **`@runwayml/avatars-react`**; the Eliza process does not embed WebRTC itself.
+
+Details: [`plugins/plugin-runway/README.md`](https://github.com/Bleyle823/Brainway/blob/main/plugins/plugin-runway/README.md).
+
+## Choosing a plugin
+
+| You need… | Prefer… |
+|-----------|---------|
+| Python / Hermes tooling | `plugins/runway/` |
+| ElizaOS agent with Runway actions | `plugins/plugin-runway/` |
+| End-user web app for sensory-aware learning | **Brainway** [`Brainway/`](https://github.com/Bleyle823/Brainway/tree/main/Brainway) — see [Brainway app (hub)](/docs/brainway-app) |
+
+## Related docs
+
+- [Runway integration](/docs/runway-integration) (API bases, secrets, Characters caveats)
+- [Repository layout](/docs/repository-layout)

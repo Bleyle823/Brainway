@@ -22,6 +22,8 @@ This repository is a **monorepo**: the product web app lives under [`Brainway/`]
 - [Deployment](#deployment)
 - [Documentation and deeper technical detail](#documentation-and-deeper-technical-detail)
 - [Research, claims, and limitations](#research-claims-and-limitations)
+- [Collaborations and cosigns](#collaborations-and-cosigns)
+- [Ecosystem and developer tools](#ecosystem-and-developer-tools)
 - [Roadmap and future plans](#roadmap-and-future-plans)
 - [License](#license)
 
@@ -93,7 +95,7 @@ Concrete workflows the codebase supports today:
 | **Run a realtime AI Character session in the browser** | `/live` | Runway Characters + LiveKit; supports multilingual and preset/custom avatar modes (see `.env.example` for `RUNWAY_CHARACTER_AVATAR_TYPE`). |
 | **Send a Character into Zoom / Meet / Teams** | `/meet` | Requires deployed [`recall-bridge`](recall-bridge/README.md) + `RECALL_BRIDGE_URL` + Recall credentials + **public HTTPS** `PUBLIC_URL` on the bridge (tunnel in dev). |
 | **Browse / prototype a shared “neurosafe” library** | `/community` | UX + server stubs; extend persistence as needed. |
-| **Read marketing / positioning** | `/` | Hero, features, live-meeting story, CTAs, brand kit link (footer). |
+| **Read marketing, roadmap, ecosystem** | `/` | Hero, collaborations, feature highlights, live meeting story, numbered **roadmap** (sign language aware Characters first), **developer ecosystem** (Runway, Recall, Hermes, ElizaOS), CTAs, footer |
 
 Details for each route, server functions, and file layout: **[`Brainway/README.md`](Brainway/README.md)**.
 
@@ -256,17 +258,36 @@ Operational detail: **[`recall-bridge/README.md`](recall-bridge/README.md)**.
 
 ---
 
+## Collaborations and cosigns
+
+Brainway is built with **product integrations** (for example [Runway](https://runwayml.com/) and [Recall.ai](https://www.recall.ai/) when you use `/meet`) and room for **named research and pilot partners** as they commit. The landing page lists a small set of placeholders alongside those integrations so you can swap in real organisation names without hunting through the UI code. Partner rows are defined in [`Brainway/src/lib/landing-collaborations.ts`](Brainway/src/lib/landing-collaborations.ts).
+
+---
+
+## Ecosystem and developer tools
+
+The monorepo is not only the web app. The same Runway capabilities are exposed to **agent runtimes**:
+
+| Component | Location | Role |
+|-----------|----------|------|
+| **Hermes plugin** | [`plugins/runway/`](plugins/runway/README.md) | Python tools for Hermes hosts (video, images, Characters, transforms). |
+| **ElizaOS plugin** | [`plugins/plugin-runway/`](plugins/plugin-runway/README.md) | TypeScript package for ElizaOS actions and providers, including Character sessions that pair with browser UIs. |
+
+Ecosystems such as **ElizaOS** already integrate **established protocols**; **ElevenLabs** is a widely used example of that pattern. A **Runway** plugin reaches the **same class of agent installations** when teams need video and **Characters**, which makes it a meaningful **distribution** path, not a small side integration. Install and architecture notes: [`docs/plugins-overview.mdx`](docs/plugins-overview.mdx).
+
+---
+
 ## Roadmap and future plans
 
-Directions that fit the codebase structure (not commitments):
+These steps match the public landing **roadmap** section. They describe direction, not firm delivery dates.
 
-- **Efficacy & evaluation**: structured pilots with schools/clinics; logging consenting anonymised feedback on profile presets.
-- **Persistence**: replace in-memory community/neurosafe stubs with a real database and moderation workflows.
-- **Auth & tenancy**: org accounts, role-based access, audit logs for education deployments.
-- **Deeper LMS integrations**: exports to common LMS formats, caption/transcript pipelines, SCORM where relevant.
-- **Stronger offline / low-bandwidth modes** and configurable quality ladders.
-- **Expanded locales** beyond current multilingual hooks where Runway + product allow.
-- **Plugin ecosystem**: mature Hermes/Eliza integrations under [`plugins/`](plugins/).
+1. **Sign language aware Characters** — Design Runway **Characters** workflows aimed at **deaf and hard of hearing** learners: an expressive avatar layer **beside** instruction, not a replacement for human interpreters or national sign standards. Positioned as a new use of the Characters API for inclusive classrooms.
+2. **Proof with real classrooms** — Structured pilots with schools and clinics; consenting, anonymised feedback on profile presets.
+3. **Community library you can trust** — Replace in-memory community and neurosafe stubs with durable storage and moderation.
+4. **Organisations and tenancy** — Org accounts, roles, and audit-friendly access for institutional deployments.
+5. **LMS fit** — Exports, captions, and transcript pipelines toward common learning tools.
+6. **Locales and low bandwidth** — Broader language support where Runway and the product allow; quality ladders for slower networks.
+7. **Agent plugins** — Mature **Hermes** and **ElizaOS** integrations under [`plugins/`](plugins/).
 
 Contributions and stacked-branch workflow are summarised in **[`Brainway/README.md` → Branches](Brainway/README.md#branches-and-contribution-flow)**.
 

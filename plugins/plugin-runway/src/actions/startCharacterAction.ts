@@ -7,11 +7,15 @@ import { RunwayService } from '../services/RunwayService.ts';
 
 const TRIGGERS = [
   'start character session',
-  'runway character',
   'avatar session',
   'realtime character',
   'start runway live',
 ];
+
+/** Matches `runway character` as whole words, not the substring inside `runway characters`. */
+function matchesRunwayCharacterShortcut(text: string): boolean {
+  return /\brunway character\b/.test(text.toLowerCase());
+}
 
 function parseAvatarFromText(text: string): CreateRealtimeSessionParams['avatar'] | undefined {
   const kv = parseKeyValuePairs(text);
@@ -36,7 +40,8 @@ export const startCharacterAction: Action = {
 
   validate: async (_runtime: IAgentRuntime, message: Memory): Promise<boolean> => {
     const t = normalizeText(message);
-    return !!t && matchesAny(t, TRIGGERS);
+    if (!t) return false;
+    return matchesAny(t, TRIGGERS) || matchesRunwayCharacterShortcut(t);
   },
 
   handler: async (

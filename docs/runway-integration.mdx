@@ -1,0 +1,78 @@
+---
+title: Runway integration
+description: API hosts, secrets, SDK vs fetch, Characters, and models used in Brainway.
+---
+
+Brainway integrates with the **[Runway Developer API](https://docs.dev.runwayml.com/)** for generative video, image, audio, and **Characters** realtime sessions. All invocations that spend quota or expose org data should run **on the server** (TanStack Start server functions or `recall-bridge`), using **`RUNWAYML_API_SECRET`**.
+
+## API host and “dev” subdomain
+
+The default public API base is **`https://api.dev.runwayml.com/v1`**. The **`dev` hostname segment is not a staging environment** in the historical sense—it is Runway’s Developer API host naming. See comments in [`runway-config.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/runway-config.ts).
+
+Override with:
+
+- **`RUNWAYML_API_BASE_URL`** — must resolve to a path ending in **`/v1`** (or origin-only; code appends `/v1`).
+- **`RUNWAYML_BASE_URL`** — alias for parity with SDK docs.
+
+## Secret handling
+
+[`getRunwayApiSecret()`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/runway-config.ts):
+
+- Reads **`RUNWAYML_API_SECRET`** from `process.env`.
+- **Trims** whitespace (common copy/paste issue).
+- **Throws** a configuration error if missing—surfaces clearly in dev when `.env.local` is incomplete.
+
+Never log the raw secret or return it to the browser.
+
+## SDK vs `fetch` (avoid `/v1/v1`)
+
+| Helper | Use when |
+|--------|-----------|
+| **`getRunwayApiOrigin()`** | Constructing `@runwayml/sdk` `RunwayML` client — SDK adds `/v1/...` paths internally. |
+| **`getRunwayApiBase()`** | Your own `fetch` calls to REST endpoints like `/realtime_sessions`, `/tasks`, etc. |
+
+If you pass **`getRunwayApiBase()`** (which already includes `/v1`) into the SDK base URL, requests may become **`/v1/v1/...`** and fail with **404**.
+
+## Workers-compatible Characters client
+
+[`runway-characters.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/runway-characters.ts) uses **`fetch`** against `getRunwayApiBase()` with headers:
+
+- `Authorization: Bearer <apiKey>` for admin operations.
+- `X-Runway-Version: <RUNWAY_API_VERSION>`.
+
+This keeps realtime session provisioning compatible with **Cloudflare Workers** constraints while matching documented REST shapes.
+
+## Realtime avatar discriminator
+
+Runway expects different JSON shapes:
+
+- **`runway-preset`**: uses **`presetId`** field in API payloads.
+- **`custom`**: uses **`avatarId`** and can accept **`personality`** + **`startScript`**.
+
+Brainway maps UI/env into a `RealtimeAvatarRef` union. Mismatching preset vs custom with the wrong id field produces **400** discriminator errors—see troubleshooting in [`Brainway/README.md`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/README.md).
+
+## Models and tasks (non-exhaustive)
+
+| Feature | Typical model / task |
+|---------|----------------------|
+| Video-to-video accessibility | **`gen4_aleph`** |
+| Educator “create” clips | Gen-4.5 family (via SDK/tasks in `runway-api` / route code) |
+| Realtime avatar | **`gwm1_avatars`** on **`realtime_sessions`** |
+| Safe image / audio routes | Image, sound, dubbing helpers in [`transform-fns.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/transform-fns.ts) and related prompt libs |
+
+Exact model strings evolve with Runway—verify against current Developer API docs when upgrading.
+
+## Bridge header forwarding (`/meet`)
+
+When Brainway calls **`recall-bridge`**, it sends:
+
+- **`X-Runway-Key`**: bearer token for Runway (org secret).
+- **`X-Runway-Base-Url`**: **origin only** for how the bridge constructs its internal Runway client (see bridge implementation).
+
+This split lets **Recall credentials** live only on the bridge while still using the **operator’s** Runway org for session creation.
+
+## Related docs
+
+- [Environment variables](/docs/environment-variables)
+- [Recall bridge](/docs/recall-bridge)
+- [Troubleshooting](/docs/troubleshooting)

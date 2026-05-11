@@ -1,0 +1,44 @@
+---
+title: Routes & features
+description: Every Brainway route, backend touchpoints, and integration notes.
+---
+
+Routes are defined as files under [`Brainway/src/routes/`](https://github.com/Bleyle823/Brainway/tree/main/Brainway/src/routes). The table below matches the current surface area; regenerate the router (`routeTree.gen.ts`) via dev/build when you add files.
+
+## Route reference
+
+| Route | Purpose | Runway / external deps |
+|-------|---------|------------------------|
+| **`/`** | Landing: hero, sponsor ticker, features, live-meeting story, CTAs, footer | None (static + marketing components) |
+| **`/create`** | Educator flow: short educational video from text/images (Gen-4.5-style server pipeline) | Runway video generation via server fns |
+| **`/transform`** | Studio: upload or URL → **video-to-video** transform with profile config | `gen4_aleph` via `startTransformFn`; prompts from [`transform-prompts.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/transform-prompts.ts) |
+| **`/safe-images`** | Sensory-conscious / accessibility-oriented image generation | Runway image tasks (see `transform-fns` + educator image prompts) |
+| **`/safe-audio`** | Soundscape / masking / accessibility-oriented audio | Runway audio-related tasks (sound effects, voice tooling where enabled) |
+| **`/live`** | Realtime **Runway Characters** session in-browser | `gwm1_avatars`, `@runwayml/avatars-react`; session from [`character-fns.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/character-fns.ts) |
+| **`/meet`** | Paste Zoom/Meet/Teams URL → send **Recall** bot with Character | Requires **`RECALL_BRIDGE_URL`** + deployed bridge; Runway secret used server-side; optional **`?profiles=adhd,sensory`** (see [`meet-presets.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/meet-presets.ts)) |
+| **`/community`** | Neurosafe library browse/publish UX | Server fns with **in-memory** seeded data unless you add persistence |
+
+## `/meet` behaviour details
+
+- **Browser preview** can mirror `/live` Characters behaviour when used from the meet flow (same session stack; see route implementation).
+- **Custom avatars** (`RUNWAY_CHARACTER_AVATAR_TYPE=custom` + org avatar id): Brainway sends **personality** + **startScript** derived from selected profiles and [`character-personality.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/character-personality.ts).
+- **Preset avatars** accept sessions but **ignore** custom personality fields—Runway’s baked-in persona wins. This is by API design; document clearly for pilot users.
+- **Recall path**: Brainway POSTs to **`{RECALL_BRIDGE_URL}/api/start`** with headers **`X-Runway-Key`** and **`X-Runway-Base-Url`** so the bridge can create Runway realtime sessions with the **callers’s** org secret while Recall credentials stay on the bridge.
+
+## `/transform` pipeline (conceptual)
+
+1. Client requests an **ephemeral upload intent** (`createUploadIntentFn`) → browser uploads to Runway-managed storage.
+2. Client sends **`runway://…`** URI (or HTTPS video URL where supported) + profiles + `AllConfig` to **`startTransformFn`**.
+3. Server builds prompt via **`buildTransformPrompt`** and starts **`gen4_aleph`** task.
+4. UI polls task status via existing Runway task helpers until completion or failure.
+
+## `/community` caveats
+
+- **Publish** accepts PDF/image/text/link with size/MIME limits (see `neurosafe-fns.ts`). Data is held in **process memory**—restarts lose community submissions unless you extend persistence.
+- Suitable for **demos**; production needs a database, moderation, and PII policy.
+
+## Related docs
+
+- [Neurodiversity profiles](/docs/neurodiversity-profiles)
+- [Recall bridge](/docs/recall-bridge)
+- [Runway integration](/docs/runway-integration)

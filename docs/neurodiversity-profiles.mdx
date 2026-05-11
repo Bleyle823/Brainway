@@ -1,0 +1,71 @@
+---
+title: Neurodiversity profiles
+description: ADHD, autism, dyslexia, and sensory profiles — UI config, prompts, and Characters behaviour.
+---
+
+Brainway encodes **repeatable accessibility hypotheses** as four canonical profile ids:
+
+- **`adhd`**
+- **`autism`**
+- **`dyslexia`**
+- **`sensory`**
+
+These ids appear in [`ProfileSelector`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/components/transform/ProfileSelector.tsx), [`TransformConfig`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/components/transform/TransformConfig.tsx), transform/meet flows, and server-side prompt builders.
+
+> **Disclaimer:** These are **software-encoded accommodations**, not medical advice or guaranteed outcomes. See [Research, claims, and limitations](/docs/research-limitations).
+
+## Where profiles apply
+
+| Surface | Mechanism |
+|---------|-----------|
+| **`/transform`**, **`/create`** | [`buildTransformPrompt`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/transform-prompts.ts) assembles a **`gen4_aleph`** video-to-video prompt from profiles + per-profile slider values (`AllConfig`). |
+| **`/live`** | [`createCharacterSessionFn`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/character-fns.ts) passes **`personality`** + **`startScript`** only for **custom** avatars (see below). |
+| **`/meet`** | Same personality pipeline when sending `systemPrompt` to recall-bridge; meet page also exposes ADHD/Sensory/Multi presets + URL query `?profiles=…` via [`meet-presets.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/meet-presets.ts). |
+
+## Transform / video prompts (`transform-prompts.ts`)
+
+The builder composes natural-language instructions for **neurodivergent-friendly video**, including optional **localization**: non-English targets add translation/subtitle/RTL instructions tied to [`languages.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/languages.ts).
+
+**Examples of per-profile instructions (high level):**
+
+- **ADHD**: reduce peripheral distraction; optional focus-zone language; calm steady pacing.
+- **Autism**: replace hard cuts with dissolves/cross-fades; control background motion (static vs subtle loop); uniform structure.
+- **Dyslexia**: cap words per frame; increase text scale; visual-before-text ordering.
+- **Sensory**: desaturate palette to a configurable intensity; gentle transitions only; soften harsh audio peaks.
+
+The prompt closes by **preserving educational content** while keeping output calm—see source for exact wording sent to Runway.
+
+## Characters personality (`character-personality.ts`)
+
+For **custom** avatars, Brainway builds a long **system prompt** that defines the Character as a **calm learning companion**:
+
+- Mirrors instructor content without imitating **startling** motion, sarcasm, or chaotic pacing from screen share.
+- Enforces concise turns, optional grounding/break cues (sparingly), and ND-specific sections when profiles are selected.
+- **Non-English sessions**: requires exclusive use of the target language for responses; uses native **greetings** from `languages.ts` as **`startScript`** openers.
+
+Profile blocks add directives such as:
+
+- **ADHD**: chunked arcs, checkpoints, optional “focus dimming” of tangents.
+- **Autism**: predictable transitions, optional fixed bridging phrase for new subtopics, literal language preference.
+- **Dyslexia**: visual-first description, read-aloud behaviour for dense bullets with pauses.
+- **Sensory**: soft volume/emphasis, no startling interjections; gentle transition metaphors.
+
+There is a **length cap** (~10k chars) with truncation guard so Runway payloads stay bounded.
+
+## Preset vs custom Runway avatars
+
+| `RUNWAY_CHARACTER_AVATAR_TYPE` | Effect |
+|-------------------------------|--------|
+| **`runway-preset`** (default) | Uses Runway preset id (e.g. `music-superstar`). **Personality/startScript omitted** in API payload—preset persona only. |
+| **`custom`** | Uses org **`RUNWAY_CHARACTER_AVATAR_ID`**. Brainway sends **`personality`** + **`startScript`** so ND rules apply. |
+
+Configure in **`Brainway/.env.local`** — see [Environment variables](/docs/environment-variables).
+
+## Meet URL presets
+
+[`MEET_PROFILE_PRESETS`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/meet-presets.ts) defines bundled options (ADHD-focused, Sensory calm, Multiple needs). **`parseProfilesSearchParam`** accepts comma-separated ids; unknown tokens are dropped.
+
+## Related docs
+
+- [Runway integration](/docs/runway-integration)
+- [Routes & features](/docs/brainway-routes)

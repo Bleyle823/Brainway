@@ -5,7 +5,7 @@ import {
   type TestSuite,
 } from '@elizaos/core';
 import { generateVideoAction } from '../../index';
-import { RunwayService, MediaProcessingService } from '../../index';
+import { RunwayService, MediaProcessingService, RunwayManagementService } from '../../index';
 
 type UUID = `${string}-${string}-${string}-${string}-${string}`;
 
@@ -37,8 +37,10 @@ export const RunwayPluginTestSuite: TestSuite = {
       fn: async (runtime: IAgentRuntime) => {
         const runway = runtime.getService(RunwayService.serviceType);
         const media = runtime.getService(MediaProcessingService.serviceType);
+        const mgmt = runtime.getService(RunwayManagementService.serviceType);
         if (!runway) throw new Error('RunwayService (runway) not found');
         if (!media) throw new Error('MediaProcessingService (runway-media) not found');
+        if (!mgmt) throw new Error('RunwayManagementService (runway-management) not found');
       },
     },
     {
@@ -47,6 +49,7 @@ export const RunwayPluginTestSuite: TestSuite = {
         const names = new Set((runtime.actions ?? []).map((a) => a.name));
         if (!names.has('RUNWAY_GENERATE_VIDEO')) throw new Error('RUNWAY_GENERATE_VIDEO missing');
         if (!names.has('RUNWAY_START_CHARACTER_SESSION')) throw new Error('RUNWAY_START_CHARACTER_SESSION missing');
+        if (!names.has('RUNWAY_GET_ORGANIZATION')) throw new Error('RUNWAY_GET_ORGANIZATION missing');
       },
     },
     {

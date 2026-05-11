@@ -1,21 +1,41 @@
 ---
-title: Brainway app
-description: The TanStack Start web application under Brainway/.
+title: Brainway app (hub)
+description: Entry point for the TanStack Start application under Brainway/.
 ---
 
-# Brainway application
-
-The product **Brainway** lives in `Brainway/`. It targets neurodivergent learners with profile-driven accessibility, Runway-powered video tooling, educator flows, live avatar sessions, and a community surface.
+The **Brainway** product is the web application in [`Brainway/`](https://github.com/Bleyle823/Brainway/tree/main/Brainway): **TanStack Start**, **React 19**, **Vite 7**, **Tailwind v4**, targeting **Cloudflare Workers** with optional **Vercel (Nitro)**.
 
 ## Quick start
 
-From the `Brainway/` directory:
-
 ```bash
+cd Brainway
 npm install
+cp .env.example .env.local   # Windows: copy .env.example .env.local
+# Set RUNWAYML_API_SECRET at minimum
 npm run dev
 ```
 
-## Deeper reading
+Open the URL from the dev server (typically `http://localhost:5173`).
 
-See `Brainway/README.md` in the repository for architecture, environment variables, scripts, routing, and Cloudflare deployment.
+## Deep dives (this docs site)
+
+| Topic | Page |
+|--------|------|
+| Stack, server functions, Workers vs SDK | [Architecture](/docs/brainway-architecture) |
+| Every route (`/create`, `/transform`, `/live`, `/meet`, …) | [Routes & features](/docs/brainway-routes) |
+| ADHD / autism / dyslexia / sensory presets | [Neurodiversity profiles](/docs/neurodiversity-profiles) |
+| Runway API hosts, secrets, Characters | [Runway integration](/docs/runway-integration) |
+| `.env` / secrets tables | [Environment variables](/docs/environment-variables) |
+| Local setup + scripts | [Development workflow](/docs/development-workflow) |
+| Cloudflare + Vercel + bridge | [Deployment](/docs/deployment) |
+| Common failures | [Troubleshooting](/docs/troubleshooting) |
+| Evidence & honesty about AI media | [Research, claims, and limitations](/docs/research-limitations) |
+| Secrets, conferencing, minors | [Security & privacy](/docs/security-privacy) |
+
+## Optional: live meetings
+
+Conference bots require **[Recall bridge](/docs/recall-bridge)** deployed separately and **`RECALL_BRIDGE_URL`** set in Brainway.
+
+## Canonical README
+
+The in-repo [`Brainway/README.md`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/README.md) stays the **source of truth** for file-level paths and may ahead of or behind this Mintlify site—when they disagree during rapid development, trust **git main** and open a docs PR.

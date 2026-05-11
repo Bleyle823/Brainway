@@ -1,0 +1,43 @@
+---
+title: Contributing
+description: Branches, PR flow, and conventions for the Brainway monorepo.
+---
+
+## Repository
+
+Primary GitHub remote: **[github.com/Bleyle823/Brainway](https://github.com/Bleyle823/Brainway)**. Confirm your fork/clone matches the path case (**`Brainway/`** directory).
+
+## Stacked / feature branches
+
+Integration work may be staged across branches (from [`Brainway/README.md`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/README.md)):
+
+1. **`feat_characters`** — Runway Characters live sessions, multilingual fixes  
+2. **`chore/brainway-rebrand`** — Brand and hero alignment  
+3. **`feat/community-neurosafe-library`** — Community routes + server helpers  
+4. **`feat/educator-create-transform`** — Create flow, transform expansion, SDK adoption  
+
+Open PRs against the base your maintainers specify (`main` vs stacked parent).
+
+## Code conventions
+
+- **Match existing style** (Prettier, ESLint). Run **`npm run lint`** and **`npm run format`** from **`Brainway/`** before pushing.
+- **Do not edit** [`routeTree.gen.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/routeTree.gen.ts) manually for new routes—add `src/routes/*.tsx` and regenerate.
+- **Server functions**: validate inputs (Zod or explicit checks); never log secrets.
+- **Docs**: update Mintlify pages under **`docs/`** and **`docs.json`** navigation when you change user-visible behaviour meaningfully.
+
+## Testing expectations
+
+There is no single end-to-end suite documented as mandatory—contributors should:
+
+- Manually verify routes they touch (`/transform`, `/live`, `/meet` with bridge if applicable).
+- Confirm **`RUNWAYML_API_SECRET`** errors and happy paths.
+- For Recall: validate **`PUBLIC_URL`** constraints.
+
+## Licensing
+
+The repository may not include a root **`LICENSE`** file—confirm redistribution terms with maintainers before publishing derived works.
+
+## Related docs
+
+- [Development workflow](/docs/development-workflow)
+- [Repository layout](/docs/repository-layout)
