@@ -59,6 +59,15 @@
             "pages": ["docs/plugins-overview"]
           }
         ]
+      },
+      {
+        "tab": "Changelog",
+        "groups": [
+          {
+            "group": "2026",
+            "pages": ["changelog/2026-05-15"]
+          }
+        ]
       }
     ]
   },
