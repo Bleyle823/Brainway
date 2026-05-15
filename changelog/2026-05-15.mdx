@@ -1,0 +1,8 @@
+---
+title: "Week of May 15, 2026"
+description: "Vercel deployments now ship reliably for self-hosted Brainway."
+---
+
+## Bug fixes
+
+- **Vercel deployments no longer return 404 at the root.** Self-hosted Brainway on Vercel now builds with the correct server preset, so the marketing page, `/transform`, `/live`, `/meet`, and the rest of the app render on first request. If you previously saw `NOT_FOUND` on a fresh Vercel project, redeploying from `main` resolves it. See [Deployment](/docs/deployment) and [Troubleshooting](/docs/troubleshooting) for the up-to-date setup.
