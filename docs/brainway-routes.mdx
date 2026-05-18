@@ -23,7 +23,7 @@ Routes are defined as files under [`Brainway/src/routes/`](https://github.com/Bl
 - **Browser preview** can mirror `/live` Characters behaviour when used from the meet flow (same session stack; see route implementation).
 - **Custom avatars** (`RUNWAY_CHARACTER_AVATAR_TYPE=custom` + org avatar id): Brainway sends **personality** + **startScript** derived from selected profiles and [`character-personality.ts`](https://github.com/Bleyle823/Brainway/blob/main/Brainway/src/lib/character-personality.ts).
 - **Preset avatars** accept sessions but **ignore** custom personality fields—Runway’s baked-in persona wins. This is by API design; document clearly for pilot users.
-- **Recall path**: Brainway POSTs to **`{RECALL_BRIDGE_URL}/api/start`** with headers **`X-Runway-Key`** and **`X-Runway-Base-Url`** so the bridge can create Runway realtime sessions with the **callers’s** org secret while Recall credentials stay on the bridge.
+- **Recall path**: Brainway POSTs to **`{RECALL_BRIDGE_URL}/api/start`** with headers **`X-Runway-Key`** and **`X-Runway-Base-Url`** so the bridge can create Runway realtime sessions with the **caller’s** org secret while Recall credentials stay on the bridge.
 
 ## `/transform` pipeline (conceptual)
 
